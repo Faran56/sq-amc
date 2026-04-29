@@ -543,7 +543,7 @@ const Customers = ({ customers, setCustomers, user }) => {
           {user.role==="admin"&&(
             <div style={{display:"flex",gap:8,marginTop:4}}>
               <button className="btn-ghost" style={{padding:"5px 13px",fontSize:12}} onClick={()=>setModal(c)}><Ic.Edit/> Edit</button>
-              <button className="btn-danger" style={{padding:"5px 11px",fontSize:12}} onClick={()=>{if(confirm("Delete this plant?"))setCustomers(cs=>cs.filter(x=>x.id!==c.id));}}><Ic.Trash/></button>
+              <button className="btn-danger" style={{padding:"5px 11px",fontSize:12}} onClick={()=>{if(window.confirm("Delete this plant?"))setCustomers(cs=>cs.filter(x=>x.id!==c.id));}}><Ic.Trash/></button>
             </div>
           )}
         </div>
@@ -768,7 +768,7 @@ const Reports = ({ customers, reports, setReports, user }) => {
           <div style={{display:"flex",gap:8,marginTop:10}}>
             <button className="btn-ghost" style={{padding:"5px 12px",fontSize:12}} onClick={()=>setView(r)}>View</button>
             <button className="btn-soft"  style={{padding:"5px 12px",fontSize:12}} onClick={()=>exportPDF(r)}><Ic.PDF/> PDF</button>
-            {user.role==="admin"&&<button className="btn-danger" style={{padding:"5px 10px",fontSize:12}} onClick={()=>{if(confirm("Delete report?"))setReports(rs=>rs.filter(x=>x.id!==r.id));}}><Ic.Trash/></button>}
+            {user.role==="admin"&&<button className="btn-danger" style={{padding:"5px 10px",fontSize:12}} onClick={()=>{if(window.confirm("Delete report?"))setReports(rs=>rs.filter(x=>x.id!==r.id));}}><Ic.Trash/></button>}
           </div>
         </div>
       ))}

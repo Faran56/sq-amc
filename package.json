@@ -3,6 +3,7 @@
   "version": "2.0.0",
   "description": "RO Plant AMC Management System",
   "private": true,
+  "homepage": "https://Faran56.github.io/sq-amc",
   "homepage": "./",
   "scripts": {
     "start": "react-scripts start",

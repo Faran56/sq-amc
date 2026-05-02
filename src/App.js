@@ -3,15 +3,16 @@ import { useState, useEffect, useRef, useCallback } from "react";
 // ─── IMPORTANT: Replace with your Firebase config ─────────────────────────────
 // Get it from: console.firebase.google.com → Your Project → Settings → Config
 const FIREBASE_CONFIG = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT.firebaseapp.com",
-  databaseURL:       "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId:         "YOUR_PROJECT_ID",
-  storageBucket:     "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId:             "YOUR_APP_ID",
+   apiKey: "AIzaSyDHfrAHgFyYpqOoX3RGs3SmP51_h84QuuE",
+  authDomain: "sq-amc.firebaseapp.com",
+  databaseURL: "https://sq-amc-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "sq-amc",
+  storageBucket: "sq-amc.firebasestorage.app",
+  messagingSenderId: "621775970529",
+  appId: "1:621775970529:web:f42c996242ffb8941057a0",
+  measurementId: "G-4W3QF0CPQN"
 };
-const FIREBASE_ENABLED = FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY";
+const FIREBASE_ENABLED = FIREBASE_CONFIG.apiKey !== "AIzaSyDHfrAHgFyYpqOoX3RGs3SmP51_h84QuuE";
 
 // ─── Brand ────────────────────────────────────────────────────────────────────
 const T = {

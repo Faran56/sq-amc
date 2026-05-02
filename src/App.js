@@ -11,7 +11,7 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "621775970529",
   appId:             "1:621775970529:web:f42c996242ffb8941057a0",
 };
-const FIREBASE_ENABLED = FIREBASE_CONFIG.apiKey !== "AIzaSyDHfrAHgFyYpqOoX3RGs3SmP51_h84QuuE";
+const FIREBASE_ENABLED = FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY";
 
 // ─── Brand ────────────────────────────────────────────────────────────────────
 const T = {

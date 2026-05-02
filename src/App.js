@@ -3,14 +3,13 @@ import { useState, useEffect, useRef, useCallback } from "react";
 // ─── IMPORTANT: Replace with your Firebase config ─────────────────────────────
 // Get it from: console.firebase.google.com → Your Project → Settings → Config
 const FIREBASE_CONFIG = {
-   apiKey: "AIzaSyDHfrAHgFyYpqOoX3RGs3SmP51_h84QuuE",
-  authDomain: "sq-amc.firebaseapp.com",
-  databaseURL: "https://sq-amc-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "sq-amc",
-  storageBucket: "sq-amc.firebasestorage.app",
+  apiKey:            "AIzaSyDHfrAHgFyYpqOoX3RGs3SmP51_h84QuuE",
+  authDomain:        "sq-amc.firebaseapp.com",
+  databaseURL:       "https://sq-amc-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "sq-amc",
+  storageBucket:     "sq-amc.firebasestorage.app",
   messagingSenderId: "621775970529",
-  appId: "1:621775970529:web:f42c996242ffb8941057a0",
-  measurementId: "G-4W3QF0CPQN"
+  appId:             "1:621775970529:web:f42c996242ffb8941057a0",
 };
 const FIREBASE_ENABLED = FIREBASE_CONFIG.apiKey !== "AIzaSyDHfrAHgFyYpqOoX3RGs3SmP51_h84QuuE";
 
@@ -151,7 +150,7 @@ const injectCSS = () => {
   if(document.getElementById("sq-css3")) return;
   const s = document.createElement("style"); s.id = "sq-css3";
   s.textContent = `
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+    @import url('https://fonts.googles.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html,body,#root{height:100%;font-family:'Outfit',sans-serif;background:${T.bg};color:${T.text};-webkit-font-smoothing:antialiased}
 

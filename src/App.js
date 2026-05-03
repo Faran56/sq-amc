@@ -1,14 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDHfrAHgFyYpqOoX3RGs3SmP51_h84QuuE",
-  authDomain: "sq-amc.firebaseapp.com",
-  databaseURL: "https://sq-amc-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "sq-amc",
-  storageBucket: "sq-amc.firebasestorage.app",
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyDHfrAHgFyYpqOoX3RGs3SmP51_h84QuuE",
+  authDomain:        "sq-amc.firebaseapp.com",
+  databaseURL:       "https://sq-amc-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "sq-amc",
+  storageBucket:     "sq-amc.firebasestorage.app",
   messagingSenderId: "621775970529",
-  appId: "1:621775970529:web:f42c996242ffb8941057a0",
-  measurementId: "G-4W3QF0CPQN"
+  appId:             "1:621775970529:web:f42c996242ffb8941057a0",
 };
 const FIREBASE_ENABLED = FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY";
 

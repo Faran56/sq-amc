@@ -1,244 +1,283 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-// ─── IMPORTANT: Replace with your Firebase config ─────────────────────────────
-// Get it from: console.firebase.google.com → Your Project → Settings → Config
 const FIREBASE_CONFIG = {
-  apiKey:            "AIzaSyDHfrAHgFyYpqOoX3RGs3SmP51_h84QuuE",
-  authDomain:        "sq-amc.firebaseapp.com",
-  databaseURL:       "https://sq-amc-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId:         "sq-amc",
-  storageBucket:     "sq-amc.firebasestorage.app",
-  messagingSenderId: "621775970529",
-  appId:             "1:621775970529:web:f42c996242ffb8941057a0",
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT.firebaseapp.com",
+  databaseURL:       "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID",
 };
 const FIREBASE_ENABLED = FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY";
 
-// ─── Brand ────────────────────────────────────────────────────────────────────
 const T = {
-  navy:"#1a237e", royal:"#1e3a8a", mid:"#1d4ed8", bright:"#2563eb",
-  light:"#60a5fa", bg:"#0f1f5c", surface:"#162470", card:"#1a2b80",
-  border:"#2d43a8", accent:"#60a5fa", accent2:"#34d399", warn:"#fbbf24",
-  danger:"#f87171", text:"#e8f0fe", muted:"#93afd4",
-  font:"'Outfit',sans-serif", mono:"'JetBrains Mono',monospace",
+  navy:"#1a237e",royal:"#1e3a8a",mid:"#1d4ed8",bright:"#2563eb",
+  light:"#60a5fa",bg:"#0f1f5c",surface:"#162470",card:"#1a2b80",
+  border:"#2d43a8",accent:"#60a5fa",accent2:"#34d399",warn:"#fbbf24",
+  danger:"#f87171",text:"#e8f0fe",muted:"#93afd4",
+  font:"'Outfit',sans-serif",mono:"'JetBrains Mono',monospace",
 };
 
-// ─── Seed Customers ───────────────────────────────────────────────────────────
 const SEED_CUSTOMERS = [
-  {id:"c1", name:"Altwesa Investment",           location:"Malaket",            capacity:"40,000 GPD",           docNo:"SQ-ROQ-0626-003",     amcStart:"2026-02-01",duration:"3 year",  amcEnd:"2029-02-01",emirate:"Abu Dhabi",lat:24.192,lng:55.763,contactNo:"",operatorName:""},
-  {id:"c2", name:"Altwesa Investment",           location:"Zakher",             capacity:"60,000 GPD",           docNo:"SQ-ROQ-0626-003",     amcStart:"2026-02-01",duration:"3 year",  amcEnd:"2029-02-01",emirate:"Abu Dhabi",lat:24.155,lng:55.712,contactNo:"",operatorName:""},
-  {id:"c3", name:"Altwesa Investment",           location:"Zakher",             capacity:"60,000 GPD",           docNo:"SQ-ROQ-0626-004",     amcStart:"2026-02-01",duration:"3 year",  amcEnd:"2029-02-01",emirate:"Abu Dhabi",lat:24.153,lng:55.714,contactNo:"",operatorName:""},
-  {id:"c4", name:"Altwesa Investment",           location:"Zakher",             capacity:"60,000 GPD",           docNo:"SQ-ROQ-0626-005",     amcStart:"2026-02-01",duration:"3 year",  amcEnd:"2029-02-01",emirate:"Abu Dhabi",lat:24.151,lng:55.716,contactNo:"",operatorName:""},
-  {id:"c5", name:"Altwesa Investment",           location:"Al Saad",            capacity:"80,000 GPD",           docNo:"SQ-ROQ-0626-002",     amcStart:"2026-02-01",duration:"3 year",  amcEnd:"2029-02-01",emirate:"Abu Dhabi",lat:24.206,lng:55.741,contactNo:"",operatorName:""},
-  {id:"c6", name:"Altwesa Investment",           location:"Al Saad",            capacity:"100,000 GPD",          docNo:"SQ-ROQ-0626-002",     amcStart:"2026-02-01",duration:"3 year",  amcEnd:"2029-02-01",emirate:"Abu Dhabi",lat:24.208,lng:55.743,contactNo:"",operatorName:""},
-  {id:"c7", name:"Abdualh Alhashmy",             location:"Al Khatem",          capacity:"20,000 GPD",           docNo:"SQ-ROQ-060-001",      amcStart:"2026-01-23",duration:"1 year",  amcEnd:"2027-01-23",emirate:"Abu Dhabi",lat:24.078,lng:55.485,contactNo:"",operatorName:""},
-  {id:"c8", name:"Tristar RO1",                  location:"Al Khatem",          capacity:"80,000 GPD",           docNo:"SQ-ROM-0522-010",     amcStart:"2025-07-16",duration:"1 year",  amcEnd:"2026-07-16",emirate:"Abu Dhabi",lat:24.075,lng:55.483,contactNo:"",operatorName:""},
-  {id:"c9", name:"Tristar RO2",                  location:"Al Khatem",          capacity:"80,000 GPD",           docNo:"SQ-ROM-0522-010",     amcStart:"2025-07-16",duration:"1 year",  amcEnd:"2026-07-16",emirate:"Abu Dhabi",lat:24.073,lng:55.481,contactNo:"",operatorName:""},
-  {id:"c10",name:"Hamad Al Mazrouei",            location:"Al Khatem",          capacity:"20,000 GPD",           docNo:"SQ-ROM-0623-002",     amcStart:"2025-07-23",duration:"1 year",  amcEnd:"2026-07-23",emirate:"Abu Dhabi",lat:24.076,lng:55.487,contactNo:"",operatorName:""},
-  {id:"c11",name:"Hameed Nasir Al Shamsi RO-1",  location:"Al Zahra Truck Road",capacity:"20,000 GPD",           docNo:"050-6128585",         amcStart:"2025-07-18",duration:"1 year",  amcEnd:"2026-07-18",emirate:"Abu Dhabi",lat:24.215,lng:55.798,contactNo:"050-6128585",operatorName:""},
-  {id:"c12",name:"Pure Harvest Smart Farms",     location:"Nahel, Al Ain",      capacity:"22,000 GPD",           docNo:"PO#PO21028922",       amcStart:"2025-08-28",duration:"1 year",  amcEnd:"2026-08-28",emirate:"Abu Dhabi",lat:24.312,lng:55.922,contactNo:"",operatorName:""},
-  {id:"c13",name:"Philadelphia Agricultural",    location:"Ajban",              capacity:"40,000 GPD (12k ppm)",docNo:"",                    amcStart:"2025-03-21",duration:"1 year",  amcEnd:"2026-03-21",emirate:"Abu Dhabi",lat:24.523,lng:54.612,contactNo:"",operatorName:""},
-  {id:"c14",name:"Saeed Khalfan Al Kabey",       location:"Al Bahya",           capacity:"",                    docNo:"",                    amcStart:"2025-04-05",duration:"1 year",  amcEnd:"2026-04-05",emirate:"Abu Dhabi",lat:24.488,lng:54.698,contactNo:"",operatorName:""},
-  {id:"c15",name:"Hamd Jasim Al Darwesh Fakhro", location:"Rahbah",             capacity:"60,000 GPD",           docNo:"SQ-CRO 0519 002",    amcStart:"2025-04-03",duration:"3 year",  amcEnd:"2028-04-03",emirate:"Abu Dhabi",lat:24.352,lng:54.512,contactNo:"",operatorName:""},
-  {id:"c16",name:"Al Farah Contracting",         location:"Asab",               capacity:"100,000 GPD",          docNo:"ROM-0623 003",        amcStart:"2024-03-01",duration:"3 year",  amcEnd:"2027-03-01",emirate:"Abu Dhabi",lat:23.117,lng:53.775,contactNo:"",operatorName:""},
-  {id:"c17",name:"AL HADEEL Old",                location:"Liwa",               capacity:"20,000 GPD",           docNo:"",                    amcStart:"2025-09-25",duration:"1 year",  amcEnd:"2026-09-25",emirate:"Abu Dhabi",lat:23.129,lng:53.771,contactNo:"",operatorName:""},
-  {id:"c18",name:"AL HADEEL New",                location:"Liwa",               capacity:"40,000 GPD TDS",       docNo:"",                    amcStart:"2025-01-17",duration:"1 year",  amcEnd:"2026-01-17",emirate:"Abu Dhabi",lat:23.127,lng:53.769,contactNo:"",operatorName:""},
-  {id:"c19",name:"Nasir Al Harthy",              location:"Liwa",               capacity:"3 ROs",                docNo:"",                    amcStart:"2025-10-25",duration:"1 year",  amcEnd:"2026-10-25",emirate:"Abu Dhabi",lat:23.131,lng:53.773,contactNo:"",operatorName:""},
-  {id:"c20",name:"Villa Sultan Al Habtoor",      location:"Dubai - Jumeirah",   capacity:"40,000 GPD",           docNo:"050-7169230",         amcStart:"2025-02-17",duration:"1 year",  amcEnd:"2026-02-17",emirate:"Dubai",    lat:25.186,lng:55.263,contactNo:"050-7169230",operatorName:""},
-  {id:"c21",name:"Philadelphia Agricultural",    location:"Ajban",              capacity:"25,000 GPD (14k ppm)",docNo:"050 871 9131",        amcStart:"2025-05-20",duration:"1 year",  amcEnd:"2026-05-20",emirate:"Abu Dhabi",lat:24.525,lng:54.614,contactNo:"",operatorName:""},
-  {id:"c22",name:"Philadelphia",                 location:"Dubai",              capacity:"",                    docNo:"",                    amcStart:"2025-09-15",duration:"6 Months",amcEnd:"2026-03-15",emirate:"Dubai",    lat:25.188,lng:55.265,contactNo:"",operatorName:""},
-  {id:"c23",name:"Qumra Transport",              location:"Unknown",            capacity:"",                    docNo:"",                    amcStart:"2025-03-05",duration:"1 year",  amcEnd:"2026-03-05",emirate:"Abu Dhabi",lat:24.183,lng:55.752,contactNo:"",operatorName:""},
-  {id:"c24",name:"Philadelphia Agricultural",    location:"Ajban",              capacity:"40,000 GPD (22k ppm)",docNo:"",                   amcStart:"2025-02-28",duration:"1 year",  amcEnd:"2026-02-28",emirate:"Abu Dhabi",lat:24.527,lng:54.616,contactNo:"",operatorName:""},
-  {id:"c25",name:"Emirates Dairy Farm",          location:"Al Ain",             capacity:"50,000 GPD",           docNo:"SQ-ROM-0623-007",    amcStart:"2025-04-04",duration:"1 year",  amcEnd:"2026-04-04",emirate:"Abu Dhabi",lat:24.223,lng:55.831,contactNo:"",operatorName:""},
-  {id:"c26",name:"Blue Gulf",                    location:"Unknown",            capacity:"",                    docNo:"",                    amcStart:"",          duration:"Rental",  amcEnd:"",          emirate:"Dubai",    lat:25.192,lng:55.271,contactNo:"",operatorName:""},
-  {id:"c27",name:"Zakiya",                       location:"Liwa",               capacity:"60,000 GPD @20000ppm",docNo:"",                   amcStart:"",          duration:"1 year",  amcEnd:"",          emirate:"Abu Dhabi",lat:23.133,lng:53.775,contactNo:"",operatorName:""},
-  {id:"c28",name:"Al Ain Palace (Sheikha Moza)", location:"Al Ain",             capacity:"130,000 GPD @8000ppm",docNo:"SQ-25-09",           amcStart:"",          duration:"1 year",  amcEnd:"",          emirate:"Abu Dhabi",lat:24.228,lng:55.837,contactNo:"",operatorName:""},
-  {id:"c29",name:"Mohamed Al Ketby",             location:"Nahil",              capacity:"80,000 GPD @9000ppm", docNo:"SQ-25-08",           amcStart:"",          duration:"1 year",  amcEnd:"",          emirate:"Abu Dhabi",lat:24.318,lng:55.928,contactNo:"",operatorName:""},
-  {id:"c30",name:"Agri Tech Agricultural LLC",   location:"Nahil",              capacity:"80,000 GPD @9000ppm", docNo:"AG-PO-2024-10-00140",amcStart:"2025-11-14",duration:"1 year",  amcEnd:"2026-11-14",emirate:"Abu Dhabi",lat:24.316,lng:55.926,contactNo:"",operatorName:""},
+  {id:"c1", name:"Altwesa Investment",           location:"Malaket",            capacity:"40,000 GPD",           docNo:"SQ-ROQ-0626-003",     amcStart:"2026-02-01",duration:"3 year",  amcEnd:"2029-02-01",emirate:"Abu Dhabi",lat:24.192,lng:55.763,contactNo:"",operatorName:"",address:"Malaket Area, Al Ain, Abu Dhabi"},
+  {id:"c2", name:"Altwesa Investment",           location:"Zakher",             capacity:"60,000 GPD",           docNo:"SQ-ROQ-0626-003",     amcStart:"2026-02-01",duration:"3 year",  amcEnd:"2029-02-01",emirate:"Abu Dhabi",lat:24.155,lng:55.712,contactNo:"",operatorName:"",address:"Zakher, Al Ain, Abu Dhabi"},
+  {id:"c3", name:"Altwesa Investment",           location:"Zakher",             capacity:"60,000 GPD",           docNo:"SQ-ROQ-0626-004",     amcStart:"2026-02-01",duration:"3 year",  amcEnd:"2029-02-01",emirate:"Abu Dhabi",lat:24.153,lng:55.714,contactNo:"",operatorName:"",address:"Zakher, Al Ain, Abu Dhabi"},
+  {id:"c4", name:"Altwesa Investment",           location:"Zakher",             capacity:"60,000 GPD",           docNo:"SQ-ROQ-0626-005",     amcStart:"2026-02-01",duration:"3 year",  amcEnd:"2029-02-01",emirate:"Abu Dhabi",lat:24.151,lng:55.716,contactNo:"",operatorName:"",address:"Zakher, Al Ain, Abu Dhabi"},
+  {id:"c5", name:"Altwesa Investment",           location:"Al Saad",            capacity:"80,000 GPD",           docNo:"SQ-ROQ-0626-002",     amcStart:"2026-02-01",duration:"3 year",  amcEnd:"2029-02-01",emirate:"Abu Dhabi",lat:24.206,lng:55.741,contactNo:"",operatorName:"",address:"Al Saad, Al Ain, Abu Dhabi"},
+  {id:"c6", name:"Altwesa Investment",           location:"Al Saad",            capacity:"100,000 GPD",          docNo:"SQ-ROQ-0626-002",     amcStart:"2026-02-01",duration:"3 year",  amcEnd:"2029-02-01",emirate:"Abu Dhabi",lat:24.208,lng:55.743,contactNo:"",operatorName:"",address:"Al Saad, Al Ain, Abu Dhabi"},
+  {id:"c7", name:"Abdualh Alhashmy",             location:"Al Khatem",          capacity:"20,000 GPD",           docNo:"SQ-ROQ-060-001",      amcStart:"2026-01-23",duration:"1 year",  amcEnd:"2027-01-23",emirate:"Abu Dhabi",lat:24.078,lng:55.485,contactNo:"",operatorName:"",address:"Al Khatem, Abu Dhabi"},
+  {id:"c8", name:"Tristar RO1",                  location:"Al Khatem",          capacity:"80,000 GPD",           docNo:"SQ-ROM-0522-010",     amcStart:"2025-07-16",duration:"1 year",  amcEnd:"2026-07-16",emirate:"Abu Dhabi",lat:24.075,lng:55.483,contactNo:"",operatorName:"",address:"Al Khatem, Abu Dhabi"},
+  {id:"c9", name:"Tristar RO2",                  location:"Al Khatem",          capacity:"80,000 GPD",           docNo:"SQ-ROM-0522-010",     amcStart:"2025-07-16",duration:"1 year",  amcEnd:"2026-07-16",emirate:"Abu Dhabi",lat:24.073,lng:55.481,contactNo:"",operatorName:"",address:"Al Khatem, Abu Dhabi"},
+  {id:"c10",name:"Hamad Al Mazrouei",            location:"Al Khatem",          capacity:"20,000 GPD",           docNo:"SQ-ROM-0623-002",     amcStart:"2025-07-23",duration:"1 year",  amcEnd:"2026-07-23",emirate:"Abu Dhabi",lat:24.076,lng:55.487,contactNo:"",operatorName:"",address:"Al Khatem, Abu Dhabi"},
+  {id:"c11",name:"Hameed Nasir Al Shamsi RO-1",  location:"Al Zahra Truck Road",capacity:"20,000 GPD",           docNo:"050-6128585",         amcStart:"2025-07-18",duration:"1 year",  amcEnd:"2026-07-18",emirate:"Abu Dhabi",lat:24.215,lng:55.798,contactNo:"050-6128585",operatorName:"",address:"Al Zahra Truck Road, Abu Dhabi"},
+  {id:"c12",name:"Pure Harvest Smart Farms",     location:"Nahel, Al Ain",      capacity:"22,000 GPD",           docNo:"PO#PO21028922",       amcStart:"2025-08-28",duration:"1 year",  amcEnd:"2026-08-28",emirate:"Abu Dhabi",lat:24.312,lng:55.922,contactNo:"",operatorName:"",address:"Nahel, Al Ain, Abu Dhabi"},
+  {id:"c13",name:"Philadelphia Agricultural",    location:"Ajban",              capacity:"40,000 GPD",           docNo:"",                    amcStart:"2025-03-21",duration:"1 year",  amcEnd:"2026-03-21",emirate:"Abu Dhabi",lat:24.523,lng:54.612,contactNo:"",operatorName:"",address:"Ajban, Abu Dhabi"},
+  {id:"c14",name:"Saeed Khalfan Al Kabey",       location:"Al Bahya",           capacity:"",                    docNo:"",                    amcStart:"2025-04-05",duration:"1 year",  amcEnd:"2026-04-05",emirate:"Abu Dhabi",lat:24.488,lng:54.698,contactNo:"",operatorName:"",address:"Al Bahya, Abu Dhabi"},
+  {id:"c15",name:"Hamd Jasim Al Darwesh Fakhro", location:"Rahbah",             capacity:"60,000 GPD",           docNo:"SQ-CRO 0519 002",    amcStart:"2025-04-03",duration:"3 year",  amcEnd:"2028-04-03",emirate:"Abu Dhabi",lat:24.352,lng:54.512,contactNo:"",operatorName:"",address:"Rahbah, Abu Dhabi"},
+  {id:"c16",name:"Al Farah Contracting",         location:"Asab",               capacity:"100,000 GPD",          docNo:"ROM-0623 003",        amcStart:"2024-03-01",duration:"3 year",  amcEnd:"2027-03-01",emirate:"Abu Dhabi",lat:23.117,lng:53.775,contactNo:"",operatorName:"",address:"Asab, Abu Dhabi"},
+  {id:"c17",name:"AL HADEEL Old",                location:"Liwa",               capacity:"20,000 GPD",           docNo:"",                    amcStart:"2025-09-25",duration:"1 year",  amcEnd:"2026-09-25",emirate:"Abu Dhabi",lat:23.129,lng:53.771,contactNo:"",operatorName:"",address:"Liwa, Abu Dhabi"},
+  {id:"c18",name:"AL HADEEL New",                location:"Liwa",               capacity:"40,000 GPD TDS",       docNo:"",                    amcStart:"2025-01-17",duration:"1 year",  amcEnd:"2026-01-17",emirate:"Abu Dhabi",lat:23.127,lng:53.769,contactNo:"",operatorName:"",address:"Liwa, Abu Dhabi"},
+  {id:"c19",name:"Nasir Al Harthy",              location:"Liwa",               capacity:"3 ROs",                docNo:"",                    amcStart:"2025-10-25",duration:"1 year",  amcEnd:"2026-10-25",emirate:"Abu Dhabi",lat:23.131,lng:53.773,contactNo:"",operatorName:"",address:"Liwa, Abu Dhabi"},
+  {id:"c20",name:"Villa Sultan Al Habtoor",      location:"Dubai - Jumeirah",   capacity:"40,000 GPD",           docNo:"050-7169230",         amcStart:"2025-02-17",duration:"1 year",  amcEnd:"2026-02-17",emirate:"Dubai",    lat:25.186,lng:55.263,contactNo:"050-7169230",operatorName:"",address:"Jumeirah, Dubai"},
+  {id:"c21",name:"Philadelphia Agricultural",    location:"Ajban",              capacity:"25,000 GPD",           docNo:"050 871 9131",        amcStart:"2025-05-20",duration:"1 year",  amcEnd:"2026-05-20",emirate:"Abu Dhabi",lat:24.525,lng:54.614,contactNo:"",operatorName:"",address:"Ajban, Abu Dhabi"},
+  {id:"c22",name:"Philadelphia",                 location:"Dubai",              capacity:"",                    docNo:"",                    amcStart:"2025-09-15",duration:"6 Months",amcEnd:"2026-03-15",emirate:"Dubai",    lat:25.188,lng:55.265,contactNo:"",operatorName:"",address:"Dubai"},
+  {id:"c23",name:"Qumra Transport",              location:"Unknown",            capacity:"",                    docNo:"",                    amcStart:"2025-03-05",duration:"1 year",  amcEnd:"2026-03-05",emirate:"Abu Dhabi",lat:24.183,lng:55.752,contactNo:"",operatorName:"",address:""},
+  {id:"c24",name:"Philadelphia Agricultural",    location:"Ajban",              capacity:"40,000 GPD",           docNo:"",                   amcStart:"2025-02-28",duration:"1 year",  amcEnd:"2026-02-28",emirate:"Abu Dhabi",lat:24.527,lng:54.616,contactNo:"",operatorName:"",address:"Ajban, Abu Dhabi"},
+  {id:"c25",name:"Emirates Dairy Farm",          location:"Al Ain",             capacity:"50,000 GPD",           docNo:"SQ-ROM-0623-007",    amcStart:"2025-04-04",duration:"1 year",  amcEnd:"2026-04-04",emirate:"Abu Dhabi",lat:24.223,lng:55.831,contactNo:"",operatorName:"",address:"Al Ain, Abu Dhabi"},
+  {id:"c26",name:"Blue Gulf",                    location:"Unknown",            capacity:"",                    docNo:"",                    amcStart:"",          duration:"Rental",  amcEnd:"",          emirate:"Dubai",    lat:25.192,lng:55.271,contactNo:"",operatorName:"",address:"Dubai"},
+  {id:"c27",name:"Zakiya",                       location:"Liwa",               capacity:"60,000 GPD",           docNo:"",                   amcStart:"",          duration:"1 year",  amcEnd:"",          emirate:"Abu Dhabi",lat:23.133,lng:53.775,contactNo:"",operatorName:"",address:"Liwa, Abu Dhabi"},
+  {id:"c28",name:"Al Ain Palace (Sheikha Moza)", location:"Al Ain",             capacity:"130,000 GPD",          docNo:"SQ-25-09",           amcStart:"",          duration:"1 year",  amcEnd:"",          emirate:"Abu Dhabi",lat:24.228,lng:55.837,contactNo:"",operatorName:"",address:"Al Ain, Abu Dhabi"},
+  {id:"c29",name:"Mohamed Al Ketby",             location:"Nahil",              capacity:"80,000 GPD",           docNo:"SQ-25-08",           amcStart:"",          duration:"1 year",  amcEnd:"",          emirate:"Abu Dhabi",lat:24.318,lng:55.928,contactNo:"",operatorName:"",address:"Nahil, Abu Dhabi"},
+  {id:"c30",name:"Agri Tech Agricultural LLC",   location:"Nahil",              capacity:"80,000 GPD",           docNo:"AG-PO-2024-10-00140",amcStart:"2025-11-14",duration:"1 year",  amcEnd:"2026-11-14",emirate:"Abu Dhabi",lat:24.316,lng:55.926,contactNo:"",operatorName:"",address:"Nahil, Abu Dhabi"},
 ];
 
 const USERS = [
-  {id:"u1",username:"admin", password:"SQ@admin2024",   role:"admin",      name:"Admin User"},
-  {id:"u2",username:"tech1", password:"SQ@tech1#field", role:"technician", name:"Ahmed Al Mansoori"},
-  {id:"u3",username:"tech2", password:"SQ@tech2#field", role:"technician", name:"Khalid Al Rashidi"},
+  {id:"u1",username:"admin", password:"SQ@admin2024",   role:"admin",      name:"Admin-Faran"},
+  {id:"u2",username:"tech1", password:"SQ@tech1", role:"technician", name:"Mohsin"},
+  {id:"u3",username:"tech2", password:"SQ@tech2", role:"technician", name:"Mudasser"},
+  {id:"u4",username:"admin2", password:"SQ@admin2", role:"admin2", name:"Bashar"},
 ];
 
 const EMIRATES = ["Abu Dhabi","Dubai","Sharjah","Ajman","Umm Al Quwain","Ras Al Khaimah","Fujairah"];
 const READINGS_META = [
-  {key:"P1", label:"P1", desc:"Before MMF (PSI)"},
-  {key:"P2", label:"P2", desc:"Cartridge Filter (PSI)"},
-  {key:"P3", label:"P3", desc:"Before HP (PSI)"},
-  {key:"P4", label:"P4", desc:"After HP (PSI)"},
-  {key:"P5", label:"P5", desc:"After Membrane"},
-  {key:"TDS",label:"TDS",desc:"Total Dissolved Solids"},
-  {key:"pH1",label:"pH1",desc:"Inlet Source Water"},
-  {key:"pH2",label:"pH2",desc:"Outlet Product Water"},
-  {key:"DT1",label:"DT1",desc:"Dosing Tank H₂SO₄"},
-  {key:"DT2",label:"DT2",desc:"Antiscalant"},
-  {key:"DT3",label:"DT3",desc:"Dosing Tank NaOH"},
-  {key:"DT4",label:"DT4",desc:"Dosing Tank Chloride"},
-  {key:"FM1",label:"FM1",desc:"Flow Meter Production (GPM)"},
-  {key:"FM2",label:"FM2",desc:"Flow Meter Rejection (GPM)"},
+  {key:"P1",label:"P1",desc:"Before MMF (PSI)"},{key:"P2",label:"P2",desc:"Cartridge Filter (PSI)"},
+  {key:"P3",label:"P3",desc:"Before HP (PSI)"},{key:"P4",label:"P4",desc:"After HP (PSI)"},
+  {key:"P5",label:"P5",desc:"After Membrane"},{key:"TDS",label:"TDS",desc:"Total Dissolved Solids"},
+  {key:"pH1",label:"pH1",desc:"Inlet Source Water"},{key:"pH2",label:"pH2",desc:"Outlet Product Water"},
+  {key:"DT1",label:"DT1",desc:"H₂SO₄"},{key:"DT2",label:"DT2",desc:"Antiscalant"},
+  {key:"DT3",label:"DT3",desc:"NaOH"},{key:"DT4",label:"DT4",desc:"Chloride"},
+  {key:"FM1",label:"FM1",desc:"Production (GPM)"},{key:"FM2",label:"FM2",desc:"Rejection (GPM)"},
 ];
 
-// ─── Utils ────────────────────────────────────────────────────────────────────
 const uid = () => `id_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
 const todayStr = () => new Date().toISOString().split("T")[0];
 const daysUntil = d => { if(!d) return null; return Math.ceil((new Date(d)-new Date())/86400000); };
 const expiryBadge = end => {
   const d = daysUntil(end);
-  if(d===null) return {label:"No Date",  color:T.muted};
-  if(d<0)      return {label:"EXPIRED",  color:T.danger};
+  if(d===null) return {label:"No Date",color:T.muted};
+  if(d<0)      return {label:"EXPIRED",color:T.danger};
   if(d<=30)    return {label:`${d}d left`,color:T.danger};
   if(d<=90)    return {label:`${d}d left`,color:T.warn};
   return              {label:`${d}d left`,color:T.accent2};
 };
-const compressImg = async (file, maxW=800) => {
+const compressImg = async (file,maxW=800) => {
   const url = await new Promise(r=>{const fr=new FileReader();fr.onload=e=>r(e.target.result);fr.readAsDataURL(file);});
-  return new Promise(r=>{
-    const img=new Image();
-    img.onload=()=>{
-      const c=document.createElement("canvas");
-      const ratio=Math.min(maxW/img.width,maxW/img.height,1);
-      c.width=img.width*ratio; c.height=img.height*ratio;
-      c.getContext("2d").drawImage(img,0,0,c.width,c.height);
-      r(c.toDataURL("image/jpeg",0.72));
-    };
-    img.src=url;
-  });
+  return new Promise(r=>{const img=new Image();img.onload=()=>{const c=document.createElement("canvas");const ratio=Math.min(maxW/img.width,maxW/img.height,1);c.width=img.width*ratio;c.height=img.height*ratio;c.getContext("2d").drawImage(img,0,0,c.width,c.height);r(c.toDataURL("image/jpeg",0.72));};img.src=url;});
 };
-
-// ─── Local Storage ────────────────────────────────────────────────────────────
 const local = {
-  get: k => { try { const v=localStorage.getItem(k); return v?JSON.parse(v):null; } catch { return null; } },
-  set: (k,v) => { try { localStorage.setItem(k,JSON.stringify(v)); } catch {} },
-  del: k => { try { localStorage.removeItem(k); } catch {} },
+  get: k=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch{return null;}},
+  set: (k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}},
+  del: k=>{try{localStorage.removeItem(k);}catch{}},
 };
 
-// ─── Firebase helpers (loaded dynamically to avoid build errors) ──────────────
-let _db = null;
-const getDb = () => _db;
-
+let _db=null;
 const fbInit = async () => {
   if(!FIREBASE_ENABLED) return false;
   try {
-    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js");
-    const { getDatabase, ref, set, onValue, get } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js");
+    const {initializeApp,getApps}=await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js");
+    const {getDatabase,ref,set,onValue}=await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js");
     if(!getApps().length) initializeApp(FIREBASE_CONFIG);
-    else initializeApp(FIREBASE_CONFIG, `app_${Date.now()}`);
-    _db = getDatabase();
-    window._fbRef = ref; window._fbSet = set; window._fbOnValue = onValue; window._fbGet = get;
+    _db=getDatabase();
+    window._fbRef=ref;window._fbSet=set;window._fbOnValue=onValue;
     return true;
-  } catch(e) { console.warn("Firebase init failed:", e); return false; }
+  } catch(e){console.warn("Firebase:",e);return false;}
+};
+const fbSet=(path,val)=>{if(!_db)return;try{window._fbSet(window._fbRef(_db,path),val);}catch(e){console.warn(e);}};
+const fbListen=(path,cb)=>{if(!_db)return()=>{};try{const r=window._fbRef(_db,path);return window._fbOnValue(r,s=>cb(s.exists()?s.val():null));}catch{return()=>{};}};
+
+// Export Excel/CSV
+const exportExcel = customers => {
+  const headers=["Plant Name","Location","Emirate","Capacity","Doc No","AMC Start","AMC End","Duration","Status","Days Left","Contact","Address"];
+  const rows=customers.map(c=>{const d=daysUntil(c.amcEnd);const st=d===null?"No Date":d<0?"EXPIRED":d<=30?"Expiring Soon":d<=90?"Expiring":"Active";return[c.name,c.location,c.emirate,c.capacity,c.docNo,c.amcStart,c.amcEnd,c.duration,st,d===null?"":d,c.contactNo,c.address||""];});
+  const csv=[headers,...rows].map(r=>r.map(v=>`"${String(v||"").replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download=`SQ_Plants_${todayStr()}.csv`;a.click();
 };
 
-const fbSet = (path, val) => {
-  if(!_db) return;
-  try { window._fbSet(window._fbRef(_db, path), val); } catch(e) { console.warn("fbSet error", e); }
+// Export Plants PDF
+const exportPlantsPDF = customers => {
+  const win=window.open("","_blank","width=1000,height=800");
+  const expired=customers.filter(c=>{const d=daysUntil(c.amcEnd);return d!==null&&d<0;});
+  const expiring=customers.filter(c=>{const d=daysUntil(c.amcEnd);return d!==null&&d>=0&&d<=90;});
+  const active=customers.filter(c=>{const d=daysUntil(c.amcEnd);return d!==null&&d>90;});
+  const noDate=customers.filter(c=>!c.amcEnd);
+  const badge=c=>{const d=daysUntil(c.amcEnd);if(d===null)return{t:"No Date",bg:"#e5e7eb",col:"#6b7280"};if(d<0)return{t:"EXPIRED",bg:"#fee2e2",col:"#dc2626"};if(d<=30)return{t:`${d}d left`,bg:"#fee2e2",col:"#dc2626"};if(d<=90)return{t:`${d}d left`,bg:"#fef3c7",col:"#d97706"};return{t:`${d}d left`,bg:"#d1fae5",col:"#059669"};};
+  const trows=list=>list.map((c,i)=>{const b=badge(c);return`<tr><td>${i+1}</td><td><b>${c.name}</b></td><td>${c.location}</td><td>${c.emirate}</td><td>${c.capacity||"—"}</td><td>${c.amcEnd||"—"}</td><td><span style="background:${b.bg};color:${b.col};padding:2px 8px;border-radius:10px;font-weight:700;font-size:10px">${b.t}</span></td></tr>`;}).join("");
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Plants Report</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',sans-serif;font-size:11px}
+  .hdr{background:linear-gradient(135deg,#1a237e,#1d4ed8);color:#fff;padding:18px 26px}
+  .lr{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .lc{width:36px;height:36px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px}
+  h1{font-size:15px;font-weight:700}h1 span{display:block;font-size:9px;opacity:.7;letter-spacing:2px;font-weight:400}
+  .sum{display:flex;gap:10px;padding:12px 26px;background:#eff6ff;border-bottom:1px solid #dbeafe;flex-wrap:wrap}
+  .sc{background:#fff;border:1px solid #dbeafe;border-radius:7px;padding:8px 14px;text-align:center;min-width:90px}
+  .sc .n{font-size:20px;font-weight:800}.sc .l{font-size:9px;color:#6b7aa1;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+  .body{padding:12px 26px}
+  .sec{font-size:10px;font-weight:700;color:#1d4ed8;letter-spacing:2px;text-transform:uppercase;border-bottom:2px solid #dbeafe;padding-bottom:3px;margin:12px 0 7px}
+  table{width:100%;border-collapse:collapse;font-size:10px}
+  th{background:#eff6ff;font-weight:700;color:#1a237e;padding:6px 7px;text-align:left;border:1px solid #dbeafe}
+  td{padding:5px 7px;border:1px solid #dbeafe}tr:nth-child(even) td{background:#f8fbff}
+  .ftr{background:#eff6ff;border-top:2px solid #dbeafe;padding:9px 26px;display:flex;justify-content:space-between;font-size:9px;color:#6b7aa1;margin-top:14px}</style></head><body>
+  <div class="hdr"><div class="lr"><div class="lc">💧</div><h1>SUPER QUALITY<span>TRADING LLC. · superquality-est.com</span></h1></div>
+  <div style="font-size:11px;opacity:.8">RO Plants AMC Report · ${new Date().toLocaleDateString("en-AE",{day:"numeric",month:"long",year:"numeric"})}</div></div>
+  <div class="sum">
+    <div class="sc"><div class="n" style="color:#1d4ed8">${customers.length}</div><div class="l">Total</div></div>
+    <div class="sc"><div class="n" style="color:#059669">${active.length}</div><div class="l">Active</div></div>
+    <div class="sc"><div class="n" style="color:#d97706">${expiring.length}</div><div class="l">Expiring ≤90d</div></div>
+    <div class="sc"><div class="n" style="color:#dc2626">${expired.length}</div><div class="l">Expired</div></div>
+    <div class="sc"><div class="n" style="color:#6b7280">${noDate.length}</div><div class="l">No Date</div></div>
+  </div>
+  <div class="body">
+  ${expired.length?`<div class="sec">⚠ Expired (${expired.length})</div><table><tr><th>#</th><th>Plant</th><th>Location</th><th>Emirate</th><th>Capacity</th><th>AMC End</th><th>Status</th></tr>${trows(expired)}</table>`:""}
+  ${expiring.length?`<div class="sec">⏳ Expiring ≤90 Days (${expiring.length})</div><table><tr><th>#</th><th>Plant</th><th>Location</th><th>Emirate</th><th>Capacity</th><th>AMC End</th><th>Status</th></tr>${trows(expiring)}</table>`:""}
+  <div class="sec">All Plants (${customers.length})</div>
+  <table><tr><th>#</th><th>Plant</th><th>Location</th><th>Emirate</th><th>Capacity</th><th>AMC End</th><th>Status</th></tr>${trows(customers)}</table>
+  </div>
+  <div class="ftr"><span>Super Quality Trading LLC</span><span>${customers.length} plants total</span><span>superquality-est.com</span></div>
+  </body></html>`);
+  win.document.close();setTimeout(()=>win.print(),700);
 };
 
-const fbListen = (path, cb) => {
-  if(!_db) return () => {};
-  try {
-    const r = window._fbRef(_db, path);
-    const unsub = window._fbOnValue(r, snap => cb(snap.exists() ? snap.val() : null));
-    return unsub;
-  } catch { return () => {}; }
+// Export single visit report PDF
+const exportReportPDF = report => {
+  const win=window.open("","_blank","width=820,height=960");
+  const rows=pairs=>pairs.map(([k,v])=>`<tr><th>${k}</th><td>${v||"—"}</td></tr>`).join("");
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Visit Report</title>
+  <style>@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}body{font-family:'Outfit',sans-serif;color:#1a237e;font-size:12px}
+  .hdr{background:linear-gradient(135deg,#1a237e,#1d4ed8 60%,#3b82f6);color:#fff;padding:20px 28px}
+  .lr{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .lc{width:40px;height:40px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px}
+  .co{font-size:16px;font-weight:700}.co span{display:block;font-size:9px;opacity:.7;letter-spacing:2px}
+  .body{padding:16px 28px}
+  .sec{font-size:10px;font-weight:700;color:#1d4ed8;letter-spacing:2px;text-transform:uppercase;border-bottom:2px solid #dbeafe;padding-bottom:3px;margin:13px 0 7px}
+  table{width:100%;border-collapse:collapse;margin-bottom:4px}
+  td,th{border:1px solid #dbeafe;padding:5px 8px;font-size:11px}th{background:#eff6ff;font-weight:700;color:#1a237e;width:38%}
+  .rg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:4px}
+  .rb{border:1px solid #dbeafe;border-radius:4px;padding:6px;text-align:center;background:#f8fbff}
+  .rk{font-size:9px;font-weight:700;color:#1d4ed8}.rv{font-size:13px;font-weight:700;color:#1a237e;font-family:monospace}.rd{font-size:8px;color:#93afd4}
+  .photos{display:flex;flex-wrap:wrap;gap:5px}.photos img{width:150px;height:100px;object-fit:cover;border-radius:4px;border:1px solid #dbeafe}
+  .sig-box{border:2px solid #1a237e;border-radius:6px;padding:8px;display:inline-block;background:#fff}
+  .sig-box img{max-width:220px;max-height:80px;display:block}
+  .ftr{background:#eff6ff;border-top:2px solid #dbeafe;padding:10px 28px;display:flex;justify-content:space-between;font-size:9px;color:#6b7aa1;margin-top:14px}
+  </style></head><body>
+  <div class="hdr"><div class="lr"><div class="lc">💧</div><div><div class="co">SUPER QUALITY<span>TRADING LLC. · superquality-est.com</span></div></div></div>
+  <div style="font-size:12px;opacity:.85">RO UNIT VISIT REPORT · ${report.customerName} · ${report.date||""}</div></div>
+  <div class="body">
+  <div class="sec">Plant Information</div>
+  <table>${rows([["Plant/Doc No.",report.plantNo],["Client",report.customerName],["Location",report.location],["Capacity",report.capacity],["AMC Valid",report.warrantyValid],["Operator",report.operatorName],["Technician",report.technicianName],["Contact",report.contactNo],["Visit Date",report.date],["Last Visit",report.lastVisitDate],["Next Visit",report.nextVisitDate]])}</table>
+  <div class="sec">Membrane & Pumps</div>
+  <table>${rows([["Membrane Name",report.membraneName],["Membrane Type",report.membraneType],["No. of Membranes",report.noOfMembrane],...(report.pumpTypes||[]).filter(Boolean).map((p,i)=>[`Pump ${i+1}`,p])])}</table>
+  <div class="sec">Readings</div>
+  <div class="rg">${READINGS_META.map(r=>`<div class="rb"><div class="rk">${r.label}</div><div class="rv">${report.readings?.[r.key]||"—"}</div><div class="rd">${r.desc}</div></div>`).join("")}</div>
+  <div class="sec">Water Samples</div>
+  <table>${rows([["Well 1",report.wellSamples?.well1],["Well 2",report.wellSamples?.well2],["Well 3",report.wellSamples?.well3],["Well 4",report.wellSamples?.well4],["Product Water",report.productWater],["Reject Water",report.rejectWater]])}</table>
+  ${report.remarks?`<div class="sec">Remarks</div><p style="border:1px solid #dbeafe;border-radius:4px;padding:7px;font-size:11px;background:#f8fbff">${report.remarks}</p>`:""}
+  ${report.photos?.length?`<div class="sec">Site Photos</div><div class="photos">${report.photos.map(p=>`<img src="${p}"/>`).join("")}</div>`:""}
+  ${report.signature?`<div class="sec">Signature</div><div class="sig-box"><img src="${report.signature}"/></div>`:""}
+  </div>
+  <div class="ftr"><span>Generated: ${new Date().toLocaleString()}</span><span>By: ${report.submittedBy}</span><span>superquality-est.com</span></div>
+  </body></html>`);
+  win.document.close();setTimeout(()=>win.print(),700);
 };
 
-// ─── CSS ──────────────────────────────────────────────────────────────────────
+// Share via WhatsApp / Email
+const shareReport = (report,method) => {
+  const text=`*RO Visit Report — Super Quality Trading LLC*\n\n*Plant:* ${report.customerName}\n*Location:* ${report.location}\n*Visit Date:* ${report.date}\n*Technician:* ${report.technicianName}\n*Operator:* ${report.operatorName||"—"}\n*Next Visit:* ${report.nextVisitDate||"—"}\n\n*Key Readings:*\n• TDS: ${report.readings?.TDS||"—"}\n• Product Water TDS: ${report.productWater||"—"}\n• Reject Water TDS: ${report.rejectWater||"—"}\n• FM1 Production: ${report.readings?.FM1||"—"} GPM\n• FM2 Rejection: ${report.readings?.FM2||"—"} GPM\n\n*Remarks:* ${report.remarks||"None"}\n\n_Submitted via Super Quality AMC Manager_`;
+  if(method==="whatsapp") window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,"_blank");
+  else window.open(`mailto:?subject=${encodeURIComponent(`RO Visit Report — ${report.customerName} — ${report.date}`)}&body=${encodeURIComponent(text)}`,"_blank");
+};
+
 const injectCSS = () => {
-  if(document.getElementById("sq-css3")) return;
-  const s = document.createElement("style"); s.id = "sq-css3";
-  s.textContent = `
-    @import url('https://fonts.googles.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+  if(document.getElementById("sq-css4")) return;
+  const s=document.createElement("style");s.id="sq-css4";
+  s.textContent=`
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html,body,#root{height:100%;font-family:'Outfit',sans-serif;background:${T.bg};color:${T.text};-webkit-font-smoothing:antialiased}
-
-    /* App shell */
     .shell{display:flex;flex-direction:column;min-height:100vh;max-width:1280px;margin:0 auto}
-
-    /* Top bar */
     .tbar{padding:11px 20px;display:flex;align-items:center;justify-content:space-between;background:${T.navy};border-bottom:1px solid ${T.border};position:sticky;top:0;z-index:50;flex-shrink:0}
-
-    /* Body layout */
-    .body-layout{display:flex;flex:1;overflow:hidden}
-
-    /* Sidebar — hidden on mobile, shown on tablet+ */
-    .sidebar{width:210px;background:${T.navy};border-right:1px solid ${T.border};display:none;flex-direction:column;padding:16px 10px;gap:3px;flex-shrink:0;position:sticky;top:57px;height:calc(100vh - 57px);overflow-y:auto}
-    @media(min-width:768px){.sidebar{display:flex}}
+    .sidebar{width:210px;background:${T.navy};border-right:1px solid ${T.border};display:none;flex-direction:column;padding:16px 10px;gap:3px;flex-shrink:0;position:sticky;top:53px;height:calc(100vh - 53px);overflow-y:auto}
+    @media(min-width:768px){.sidebar{display:flex!important}}
     .sitem{display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:10px;font-size:13px;font-weight:600;color:${T.muted};cursor:pointer;border:none;background:none;font-family:'Outfit',sans-serif;width:100%;text-align:left;transition:all .18s}
     .sitem:hover{background:${T.surface};color:${T.text}}
     .sitem.on{background:linear-gradient(135deg,${T.mid}33,${T.bright}22);color:#fff;border:1px solid ${T.border}}
     .sitem svg{width:17px;height:17px;flex-shrink:0}
-    .slabel{font-size:10px;color:${T.muted};font-weight:700;letter-spacing:2px;padding:12px 13px 5px;text-transform:uppercase}
-
-    /* Main content */
-    .main{flex:1;overflow-y:auto;min-width:0}
     .pg{padding:20px;padding-bottom:85px}
     @media(min-width:768px){.pg{padding:24px;padding-bottom:28px}}
     @media(min-width:1024px){.pg{padding:28px 36px}}
-
-    /* Bottom nav — mobile only */
     .bnav{position:fixed;bottom:0;left:0;right:0;background:${T.navy};border-top:1px solid ${T.border};display:flex;z-index:99;padding-bottom:env(safe-area-inset-bottom,0)}
     @media(min-width:768px){.bnav{display:none}}
     .nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px 7px;font-size:10px;font-weight:600;color:${T.muted};background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif;transition:color .18s;position:relative}
     .nb.on{color:#fff}
     .nb.on::before{content:'';position:absolute;top:0;left:22%;right:22%;height:2px;background:linear-gradient(90deg,${T.mid},${T.light});border-radius:0 0 3px 3px}
     .nb svg{width:20px;height:20px}
-
-    /* Responsive grids */
     .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
     .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
     .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
     @media(min-width:640px){.stat-grid{grid-template-columns:repeat(4,1fr)}}
     @media(max-width:480px){.g2{grid-template-columns:1fr}.g4{grid-template-columns:repeat(2,1fr)}}
-
-    /* Cards */
     .card{background:${T.card};border:1px solid ${T.border};border-radius:14px;padding:18px}
     .card-glass{background:rgba(26,43,128,0.75);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.13);border-radius:16px;padding:22px}
     .cc{background:${T.card};border:1.5px solid ${T.border};border-radius:13px;padding:14px;margin-bottom:10px;transition:all .2s}
     .cc:hover{border-color:${T.accent}55;box-shadow:0 4px 18px #00000028}
-
-    /* Inputs */
     input,select,textarea{background:${T.surface};color:${T.text};border:1.5px solid ${T.border};border-radius:9px;padding:9px 13px;font-family:'Outfit',sans-serif;font-size:14px;width:100%;outline:none;transition:all .2s}
     input:focus,select:focus,textarea:focus{border-color:${T.accent};box-shadow:0 0 0 3px ${T.accent}1a}
     input::placeholder{color:${T.muted}}
     select option{background:${T.surface}}
     .fg{margin-bottom:13px}
     .fg label{display:block;font-size:11px;color:${T.muted};margin-bottom:5px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
-
-    /* Buttons */
     button{cursor:pointer;font-family:'Outfit',sans-serif;font-weight:600;border:none;border-radius:9px;padding:9px 17px;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
     .btn-p{background:linear-gradient(135deg,${T.mid},${T.bright});color:#fff;box-shadow:0 4px 12px ${T.mid}44}
-    .btn-p:hover{transform:translateY(-1px);box-shadow:0 6px 18px ${T.mid}66}
+    .btn-p:hover{transform:translateY(-1px)}
     .btn-s{background:linear-gradient(135deg,#059669,${T.accent2});color:#fff}
     .btn-s:hover{transform:translateY(-1px)}
     .btn-d{background:linear-gradient(135deg,#dc2626,${T.danger});color:#fff}
     .btn-g{background:transparent;color:${T.accent};border:1.5px solid ${T.border}}
     .btn-g:hover{border-color:${T.accent};background:${T.accent}14}
     .btn-soft{background:${T.surface};color:${T.text};border:1.5px solid ${T.border}}
-    .btn-soft:hover{border-color:${T.accent}44}
-
-    /* Misc */
-    .tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.4px}
+    .btn-wa{background:linear-gradient(135deg,#128C7E,#25D366);color:#fff}
+    .btn-wa:hover{transform:translateY(-1px)}
+    .btn-em{background:linear-gradient(135deg,#1d4ed8,#60a5fa);color:#fff}
+    .btn-em:hover{transform:translateY(-1px)}
+    .tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
     .overlay{position:fixed;inset:0;background:rgba(8,16,70,0.88);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:1000;padding:14px}
     .modal{background:${T.card};border:1px solid ${T.border};border-radius:18px;padding:24px;width:100%;max-width:680px;max-height:93vh;overflow-y:auto;box-shadow:0 24px 60px #00000060}
     .chip{display:inline-flex;align-items:center;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;border:1.5px solid ${T.border};color:${T.muted};cursor:pointer;transition:all .18s;background:${T.surface};white-space:nowrap}
     .chip.on{border-color:${T.accent};color:#fff;background:linear-gradient(135deg,${T.mid},${T.bright})}
-    .sig-pad{border:1.5px dashed ${T.accent}44;border-radius:9px;background:${T.bg};touch-action:none;display:block;width:100%}
-    .photo-thumb{width:74px;height:68px;object-fit:cover;border-radius:9px;border:1.5px solid ${T.border};cursor:pointer;transition:transform .18s}
-    .photo-thumb:hover{transform:scale(1.06)}
+    .sig-wrap{background:#fff;border:2px solid ${T.accent}55;border-radius:10px;padding:4px}
+    .sig-pad{touch-action:none;display:block;width:100%;background:#fff;border-radius:6px}
+    .photo-thumb{width:74px;height:68px;object-fit:cover;border-radius:9px;border:1.5px solid ${T.border};cursor:pointer}
     .photo-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}
-    .ab{background:${T.danger}16;border:1.5px solid ${T.danger}44;border-radius:11px;padding:10px 14px;margin-bottom:11px;display:flex;align-items:center;gap:9px}
-    .wb{background:${T.warn}16;border:1.5px solid ${T.warn}44;border-radius:11px;padding:10px 14px;margin-bottom:11px;display:flex;align-items:center;gap:9px}
+    .rs{background:${T.card};border:1.5px solid ${T.border};border-radius:13px;padding:13px;margin-bottom:9px;display:flex;align-items:flex-start;gap:11px}
+    .rn{width:33px;height:33px;border-radius:50%;background:linear-gradient(135deg,${T.mid},${T.bright});display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0;margin-top:2px}
     .sec-lbl{font-size:10px;color:${T.muted};font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:11px}
     .divr{display:flex;align-items:center;gap:8px;margin:14px 0 11px}
     .divr::before,.divr::after{content:'';flex:1;height:1px;background:${T.border}}
     .divr span{font-size:10px;color:${T.muted};font-weight:700;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap}
     .dot-live{width:8px;height:8px;border-radius:50%;background:${T.accent2};box-shadow:0 0 7px ${T.accent2};display:inline-block;flex-shrink:0}
-    .rs{background:${T.card};border:1.5px solid ${T.border};border-radius:13px;padding:13px;margin-bottom:9px;display:flex;align-items:center;gap:11px}
-    .rn{width:33px;height:33px;border-radius:50%;background:linear-gradient(135deg,${T.mid},${T.bright});display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0}
+    .alert-pill{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 13px;border-radius:9px;margin-bottom:8px;cursor:pointer;transition:filter .18s;font-size:13px;font-weight:700}
+    .alert-pill:hover{filter:brightness(1.12)}
     @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
     @keyframes spin{to{transform:rotate(360deg)}}
     .fade-up{animation:fadeUp .3s ease both}
@@ -247,53 +286,6 @@ const injectCSS = () => {
   document.head.appendChild(s);
 };
 
-// ─── PDF Export ───────────────────────────────────────────────────────────────
-const exportPDF = report => {
-  const win = window.open("","_blank","width=820,height=960");
-  const rows = pairs => pairs.map(([k,v])=>`<tr><th>${k}</th><td>${v||"—"}</td></tr>`).join("");
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Visit Report</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap');
-    *{box-sizing:border-box;margin:0;padding:0}body{font-family:'Outfit',sans-serif;color:#1a237e;font-size:12px}
-    .hdr{background:linear-gradient(135deg,#1a237e,#1d4ed8 60%,#3b82f6);color:#fff;padding:22px 30px}
-    .logo-row{display:flex;align-items:center;gap:11px;margin-bottom:11px}
-    .logo-circle{width:42px;height:42px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px}
-    .co{font-size:17px;font-weight:700}.co span{display:block;font-size:9px;opacity:.7;letter-spacing:2px}
-    .rt{font-size:12px;opacity:.85;letter-spacing:.5px}
-    .body{padding:18px 30px}
-    .sec{font-size:10px;font-weight:700;color:#1d4ed8;letter-spacing:2px;text-transform:uppercase;border-bottom:2px solid #dbeafe;padding-bottom:4px;margin:14px 0 8px}
-    table{width:100%;border-collapse:collapse;margin-bottom:4px}
-    td,th{border:1px solid #dbeafe;padding:6px 9px;font-size:11px}th{background:#eff6ff;font-weight:700;color:#1a237e;width:38%}
-    .rg{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:4px}
-    .rb{border:1px solid #dbeafe;border-radius:5px;padding:7px;text-align:center;background:#f8fbff}
-    .rk{font-size:9px;font-weight:700;color:#1d4ed8}.rv{font-size:14px;font-weight:700;color:#1a237e;font-family:monospace}.rd{font-size:8px;color:#93afd4;margin-top:1px}
-    .photos{display:flex;flex-wrap:wrap;gap:6px}.photos img{width:155px;height:105px;object-fit:cover;border-radius:5px;border:1px solid #dbeafe}
-    .sig img{max-width:210px;max-height:70px;border:1px solid #dbeafe;border-radius:4px}
-    .ftr{background:#eff6ff;border-top:2px solid #dbeafe;padding:11px 30px;display:flex;justify-content:space-between;font-size:9px;color:#6b7aa1;margin-top:14px}
-  </style></head><body>
-  <div class="hdr">
-    <div class="logo-row"><div class="logo-circle">💧</div><div><div class="co">SUPER QUALITY<span>TRADING LLC. · superquality-est.com</span></div></div></div>
-    <div class="rt">RO UNIT VISIT REPORT &nbsp;·&nbsp; ${report.customerName} &nbsp;·&nbsp; ${report.date||""}</div>
-  </div>
-  <div class="body">
-    <div class="sec">Plant Information</div>
-    <table>${rows([["Plant/Doc No.",report.plantNo],["Client",report.customerName],["Location",report.location],["Capacity",report.capacity],["AMC Valid",report.warrantyValid],["Operator",report.operatorName],["Technician",report.technicianName],["Contact",report.contactNo],["Visit Date",report.date],["Last Visit",report.lastVisitDate],["Next Visit",report.nextVisitDate]])}</table>
-    <div class="sec">Membrane & Pumps</div>
-    <table>${rows([["Membrane Name",report.membraneName],["Membrane Type",report.membraneType],["No. of Membranes",report.noOfMembrane],...(report.pumpTypes||[]).filter(Boolean).map((p,i)=>[`Pump ${i+1}`,p])])}</table>
-    <div class="sec">Readings</div>
-    <div class="rg">${READINGS_META.map(r=>`<div class="rb"><div class="rk">${r.label}</div><div class="rv">${report.readings?.[r.key]||"—"}</div><div class="rd">${r.desc}</div></div>`).join("")}</div>
-    <div class="sec">Water Samples (TDS)</div>
-    <table>${rows([["Well 1",report.wellSamples?.well1],["Well 2",report.wellSamples?.well2],["Well 3",report.wellSamples?.well3],["Well 4",report.wellSamples?.well4],["Product Water",report.productWater],["Reject Water",report.rejectWater]])}</table>
-    ${report.remarks?`<div class="sec">Remarks</div><p style="border:1px solid #dbeafe;border-radius:5px;padding:8px;font-size:11px;background:#f8fbff">${report.remarks}</p>`:""}
-    ${report.photos?.length?`<div class="sec">Site Photos</div><div class="photos">${report.photos.map(p=>`<img src="${p}"/>`).join("")}</div>`:""}
-    ${report.signature?`<div class="sec">Signature</div><div class="sig"><img src="${report.signature}"/></div>`:""}
-  </div>
-  <div class="ftr"><span>Generated: ${new Date().toLocaleString()}</span><span>By: ${report.submittedBy}</span><span>superquality-est.com</span></div>
-  </body></html>`);
-  win.document.close(); setTimeout(()=>win.print(), 700);
-};
-
-// ─── Icons ────────────────────────────────────────────────────────────────────
 const Ic = {
   Home:    ()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
   Plants:  ()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>,
@@ -307,14 +299,17 @@ const Ic = {
   Bell:    ()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>,
   Camera:  ()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>,
   PDF:     ()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>,
+  Excel:   ()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="8" y1="3" x2="8" y2="21"/><line x1="2" y1="9" x2="20" y2="9"/><line x1="2" y1="15" x2="20" y2="15"/></svg>,
   Save:    ()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>,
   Out:     ()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
   Check:   ()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>,
   Alert:   ()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
   Map:     ()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
+  GPS:     ()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>,
+  WA:      ()=><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>,
+  Email:   ()=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
 };
 
-// ─── Logo ─────────────────────────────────────────────────────────────────────
 const Logo = ({size=28}) => (
   <div style={{display:"flex",alignItems:"center",gap:9}}>
     <div style={{width:size,height:size,background:"#fff",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,boxShadow:"0 2px 10px rgba(255,255,255,0.22)"}}>
@@ -327,68 +322,65 @@ const Logo = ({size=28}) => (
   </div>
 );
 
-// ─── Sig Pad ──────────────────────────────────────────────────────────────────
+// ─── Signature Pad ─────────────────────────────────────────────────────────
 const SigPad = ({onSave,onClear}) => {
   const ref=useRef(),drawing=useRef(false),last=useRef(null);
+  useEffect(()=>{ const c=ref.current,ctx=c.getContext("2d"); ctx.fillStyle="#fff"; ctx.fillRect(0,0,c.width,c.height); },[]);
   const pos=(e,c)=>{const r=c.getBoundingClientRect(),s=e.touches?e.touches[0]:e;return{x:s.clientX-r.left,y:s.clientY-r.top};};
   const start=e=>{e.preventDefault();drawing.current=true;last.current=pos(e,ref.current);};
   const end=()=>{drawing.current=false;onSave&&onSave(ref.current.toDataURL());};
-  const move=e=>{if(!drawing.current)return;e.preventDefault();const c=ref.current,ctx=c.getContext("2d"),p=pos(e,c);ctx.strokeStyle="#fff";ctx.lineWidth=2.5;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(last.current.x,last.current.y);ctx.lineTo(p.x,p.y);ctx.stroke();last.current=p;};
+  const move=e=>{
+    if(!drawing.current)return;e.preventDefault();
+    const c=ref.current,ctx=c.getContext("2d"),p=pos(e,c);
+    ctx.strokeStyle="#000";ctx.lineWidth=3;ctx.lineCap="round";ctx.lineJoin="round";
+    ctx.beginPath();ctx.moveTo(last.current.x,last.current.y);ctx.lineTo(p.x,p.y);ctx.stroke();
+    last.current=p;
+  };
+  const clear=()=>{const c=ref.current,ctx=c.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,c.width,c.height);onClear&&onClear();};
   return(
     <div>
-      <canvas ref={ref} width={500} height={110} className="sig-pad" style={{height:110}} onMouseDown={start} onMouseMove={move} onMouseUp={end} onTouchStart={start} onTouchMove={move} onTouchEnd={end}/>
-      <button className="btn-g" style={{marginTop:7,padding:"4px 12px",fontSize:11}} onClick={()=>{ref.current.getContext("2d").clearRect(0,0,500,110);onClear&&onClear();}}>Clear</button>
+      <div className="sig-wrap">
+        <canvas ref={ref} width={500} height={120} className="sig-pad" style={{height:120}}
+          onMouseDown={start} onMouseMove={move} onMouseUp={end}
+          onTouchStart={start} onTouchMove={move} onTouchEnd={end}/>
+      </div>
+      <div style={{fontSize:11,color:T.muted,marginTop:5}}>Sign in the white box using your finger or mouse (black ink on white)</div>
+      <button className="btn-g" style={{marginTop:7,padding:"4px 12px",fontSize:11}} onClick={clear}>Clear Signature</button>
     </div>
   );
 };
 
-// ─── Login ────────────────────────────────────────────────────────────────────
+// ─── Login ──────────────────────────────────────────────────────────────────
 const Login = ({onLogin,firebaseOk}) => {
   const [u,setU]=useState(""), [p,setP]=useState(""), [err,setErr]=useState(""), [loading,setLoading]=useState(false);
-  const go = () => {
+  const go=()=>{
     if(!u||!p){setErr("Please enter username and password");return;}
-    setLoading(true); setErr("");
+    setLoading(true);setErr("");
     setTimeout(()=>{
-      const found = USERS.find(x=>x.username===u&&x.password===p);
-      if(found){ local.set("sq_session",{user:found,ts:Date.now()}); onLogin(found); }
-      else { setErr("Incorrect username or password"); setLoading(false); }
-    }, 380);
+      const found=USERS.find(x=>x.username===u&&x.password===p);
+      if(found){local.set("sq_session",{user:found,ts:Date.now()});onLogin(found);}
+      else{setErr("Incorrect username or password");setLoading(false);}
+    },380);
   };
   return(
     <div style={{minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:20,background:`linear-gradient(155deg,${T.navy} 0%,${T.royal} 50%,${T.mid} 100%)`,position:"relative",overflow:"hidden"}}>
-      {/* Decorative blobs */}
       <div style={{position:"absolute",top:"-8%",left:"-8%",width:280,height:280,borderRadius:"50%",background:"rgba(255,255,255,0.05)",pointerEvents:"none"}}/>
-      <div style={{position:"absolute",bottom:"10%",right:"-5%",width:200,height:200,borderRadius:"50%",background:"rgba(255,255,255,0.04)",pointerEvents:"none"}}/>
       <svg style={{position:"absolute",bottom:0,left:0,right:0,pointerEvents:"none"}} viewBox="0 0 1440 140" preserveAspectRatio="none" height="110">
         <path d="M0,70 C360,130 720,10 1080,70 C1260,100 1380,60 1440,50 L1440,140 L0,140Z" fill={T.bg} opacity="0.5"/>
         <path d="M0,100 C300,50 600,140 900,90 C1100,60 1300,110 1440,90 L1440,140 L0,140Z" fill={T.bg} opacity="0.75"/>
         <path d="M0,120 C240,108 480,135 720,120 C960,105 1200,130 1440,118 L1440,140 L0,140Z" fill={T.bg}/>
       </svg>
-
       <div style={{position:"relative",zIndex:1,width:"100%",maxWidth:390,animation:"fadeUp .4s ease"}}>
-        <div style={{textAlign:"center",marginBottom:30}}>
-          <Logo size={34}/>
-          <div style={{marginTop:16,fontSize:11,color:"rgba(255,255,255,0.45)",letterSpacing:3}}>AMC MANAGEMENT PORTAL</div>
-        </div>
+        <div style={{textAlign:"center",marginBottom:30}}><Logo size={34}/><div style={{marginTop:16,fontSize:11,color:"rgba(255,255,255,0.45)",letterSpacing:3}}>AMC MANAGEMENT PORTAL</div></div>
         <div className="card-glass">
           <div style={{fontSize:19,fontWeight:700,color:"#fff",marginBottom:20,textAlign:"center"}}>Welcome Back</div>
-          <div className="fg">
-            <label style={{color:"rgba(255,255,255,0.55)"}}>Username</label>
-            <input value={u} onChange={e=>setU(e.target.value)} placeholder="Enter username" onKeyDown={e=>e.key==="Enter"&&go()} style={{background:"rgba(255,255,255,0.1)",border:"1.5px solid rgba(255,255,255,0.2)",color:"#fff"}}/>
-          </div>
-          <div className="fg">
-            <label style={{color:"rgba(255,255,255,0.55)"}}>Password</label>
-            <input type="password" value={p} onChange={e=>setP(e.target.value)} placeholder="Enter password" onKeyDown={e=>e.key==="Enter"&&go()} style={{background:"rgba(255,255,255,0.1)",border:"1.5px solid rgba(255,255,255,0.2)",color:"#fff"}}/>
-          </div>
+          <div className="fg"><label style={{color:"rgba(255,255,255,0.55)"}}>Username</label><input value={u} onChange={e=>setU(e.target.value)} placeholder="Enter username" onKeyDown={e=>e.key==="Enter"&&go()} style={{background:"rgba(255,255,255,0.1)",border:"1.5px solid rgba(255,255,255,0.2)",color:"#fff"}}/></div>
+          <div className="fg"><label style={{color:"rgba(255,255,255,0.55)"}}>Password</label><input type="password" value={p} onChange={e=>setP(e.target.value)} placeholder="Enter password" onKeyDown={e=>e.key==="Enter"&&go()} style={{background:"rgba(255,255,255,0.1)",border:"1.5px solid rgba(255,255,255,0.2)",color:"#fff"}}/></div>
           {err&&<div style={{color:"#fca5a5",fontSize:12,marginBottom:12,textAlign:"center",padding:"8px 10px",background:"rgba(248,113,113,0.1)",borderRadius:8}}>{err}</div>}
           <button className="btn-p" style={{width:"100%",justifyContent:"center",padding:"13px",fontSize:15,background:"rgba(255,255,255,0.94)",color:T.royal,fontWeight:700,borderRadius:11}} onClick={go} disabled={loading}>
             {loading?<><span className="spinner" style={{borderTopColor:T.royal,borderColor:`${T.royal}33`}}/> Signing in…</>:"Sign In →"}
           </button>
-          {!firebaseOk&&(
-            <div style={{marginTop:13,padding:"9px 12px",background:"rgba(251,191,36,0.1)",border:"1px solid rgba(251,191,36,0.28)",borderRadius:8,fontSize:11,color:T.warn,textAlign:"center"}}>
-              ⚠ Firebase not configured — reports save locally only
-            </div>
-          )}
+          {!firebaseOk&&<div style={{marginTop:13,padding:"9px 12px",background:"rgba(251,191,36,0.1)",border:"1px solid rgba(251,191,36,0.28)",borderRadius:8,fontSize:11,color:T.warn,textAlign:"center"}}>⚠ Firebase not configured — reports save locally only</div>}
         </div>
         <div style={{textAlign:"center",marginTop:14,fontSize:10,color:"rgba(255,255,255,0.28)"}}>superquality-est.com</div>
       </div>
@@ -396,11 +388,15 @@ const Login = ({onLogin,firebaseOk}) => {
   );
 };
 
-// ─── Customer Modal ───────────────────────────────────────────────────────────
+// ─── Customer Modal ─────────────────────────────────────────────────────────
 const CustomerModal = ({initial,onSave,onClose}) => {
-  const blank={name:"",location:"",capacity:"",docNo:"",amcStart:"",duration:"1 year",amcEnd:"",emirate:"Abu Dhabi",lat:"",lng:"",contactNo:"",operatorName:""};
+  const blank={name:"",location:"",capacity:"",docNo:"",amcStart:"",duration:"1 year",amcEnd:"",emirate:"Abu Dhabi",lat:"",lng:"",address:"",contactNo:"",operatorName:""};
   const [f,setF]=useState(initial||blank);
   const set=(k,v)=>setF(x=>({...x,[k]:v}));
+  const getGPS=()=>{
+    if(!navigator.geolocation){alert("GPS not available");return;}
+    navigator.geolocation.getCurrentPosition(pos=>{set("lat",pos.coords.latitude.toFixed(6));set("lng",pos.coords.longitude.toFixed(6));},()=>alert("Could not get location"));
+  };
   return(
     <div className="overlay">
       <div className="modal">
@@ -416,11 +412,22 @@ const CustomerModal = ({initial,onSave,onClose}) => {
           <div className="fg"><label>Duration</label><select value={f.duration} onChange={e=>set("duration",e.target.value)}>{["6 Months","1 year","2 year","3 year","Rental"].map(d=><option key={d}>{d}</option>)}</select></div>
           <div className="fg"><label>AMC Start</label><input type="date" value={f.amcStart} onChange={e=>set("amcStart",e.target.value)}/></div>
           <div className="fg"><label>AMC End</label><input type="date" value={f.amcEnd} onChange={e=>set("amcEnd",e.target.value)}/></div>
-          <div className="fg"><label>Latitude</label><input type="number" step="0.001" value={f.lat||""} onChange={e=>set("lat",e.target.value)} placeholder="e.g. 24.192"/></div>
-          <div className="fg"><label>Longitude</label><input type="number" step="0.001" value={f.lng||""} onChange={e=>set("lng",e.target.value)} placeholder="e.g. 55.763"/></div>
         </div>
-        <div style={{display:"flex",gap:10,marginTop:16}}>
-          <button className="btn-p" style={{flex:1,justifyContent:"center"}} onClick={()=>{if(!f.name||!f.location)return alert("Name & Location required");onSave(f);}}><Ic.Save/> Save</button>
+        <div style={{background:T.surface,borderRadius:10,padding:14,marginBottom:14,border:`1px solid ${T.border}`}}>
+          <div style={{fontSize:11,color:T.light,fontWeight:700,letterSpacing:1,marginBottom:10}}>📍 PLANT LOCATION</div>
+          <div className="fg"><label>Full Address</label><input value={f.address||""} onChange={e=>set("address",e.target.value)} placeholder="e.g. Al Khatem Area, Abu Dhabi, UAE"/></div>
+          <div className="g2" style={{marginBottom:10}}>
+            <div className="fg"><label>Latitude</label><input type="number" step="0.000001" value={f.lat||""} onChange={e=>set("lat",e.target.value)} placeholder="e.g. 24.192"/></div>
+            <div className="fg"><label>Longitude</label><input type="number" step="0.000001" value={f.lng||""} onChange={e=>set("lng",e.target.value)} placeholder="e.g. 55.763"/></div>
+          </div>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+            <button className="btn-p" style={{fontSize:12,padding:"7px 13px"}} onClick={getGPS}><Ic.GPS/> Use My GPS Location</button>
+            <button className="btn-soft" style={{fontSize:12,padding:"7px 13px"}} onClick={()=>window.open(`https://maps.google.com?q=${encodeURIComponent(f.address||f.name)}`,"_blank")}><Ic.Map/> Find on Google Maps</button>
+          </div>
+          <div style={{fontSize:11,color:T.muted,marginTop:8}}>💡 Visit the plant site and tap "Use My GPS Location" for best accuracy</div>
+        </div>
+        <div style={{display:"flex",gap:10}}>
+          <button className="btn-p" style={{flex:1,justifyContent:"center"}} onClick={()=>{if(!f.name||!f.location)return alert("Name & Location required");onSave(f);}}><Ic.Save/> Save Plant</button>
           <button className="btn-soft" onClick={onClose}>Cancel</button>
         </div>
       </div>
@@ -428,29 +435,61 @@ const CustomerModal = ({initial,onSave,onClose}) => {
   );
 };
 
-// ─── Dashboard ────────────────────────────────────────────────────────────────
+// ─── Dashboard ──────────────────────────────────────────────────────────────
 const Dashboard = ({customers,reports,user,onTab,firebaseOk}) => {
+  const [showExpired,setShowExpired]=useState(false);
+  const [showExpiring,setShowExpiring]=useState(false);
   const total=customers.length;
-  const expired=customers.filter(c=>{const d=daysUntil(c.amcEnd);return d!==null&&d<0;}).length;
-  const exp30=customers.filter(c=>{const d=daysUntil(c.amcEnd);return d!==null&&d>=0&&d<=30;}).length;
+  const expiredList=customers.filter(c=>{const d=daysUntil(c.amcEnd);return d!==null&&d<0;});
+  const exp30List=customers.filter(c=>{const d=daysUntil(c.amcEnd);return d!==null&&d>=0&&d<=30;});
   const active=customers.filter(c=>{const d=daysUntil(c.amcEnd);return d!==null&&d>30;}).length;
   const monthR=reports.filter(r=>(r.date||"").startsWith(new Date().toISOString().slice(0,7))).length;
   const pct=total?Math.round((monthR/total)*100):0;
   return(
     <div className="pg fade-up">
-      <div style={{marginBottom:20}}>
+      <div style={{marginBottom:18}}>
         <div style={{fontSize:13,color:T.muted}}>Good {new Date().getHours()<12?"morning":"afternoon"},</div>
         <div style={{fontSize:26,fontWeight:800,color:"#fff"}}>{user.name}</div>
         <div style={{fontSize:12,color:T.muted,marginTop:3,display:"flex",alignItems:"center",gap:8}}>
           <span className="dot-live"/>
-          {firebaseOk?"Live sync active · all devices":"Local mode — Firebase not configured"} &nbsp;·&nbsp;
-          {new Date().toLocaleDateString("en-AE",{weekday:"long",day:"numeric",month:"long"})}
+          {firebaseOk?"Live sync active":"Local mode"} · {new Date().toLocaleDateString("en-AE",{weekday:"long",day:"numeric",month:"long"})}
         </div>
       </div>
-      {expired>0&&<div className="ab"><Ic.Alert/><span style={{color:T.danger,fontWeight:700,fontSize:13}}>{expired} contract{expired>1?"s":""} EXPIRED — renewal needed!</span></div>}
-      {exp30>0&&<div className="wb"><Ic.Bell/><span style={{color:T.warn,fontWeight:700,fontSize:13}}>{exp30} expiring within 30 days</span></div>}
+
+      {/* Compact clickable alert pills */}
+      {expiredList.length>0&&(
+        <div className="alert-pill" style={{background:T.danger+"18",border:`1px solid ${T.danger}44`,color:T.danger}}
+          onClick={()=>{setShowExpiring(false);setShowExpired(v=>!v);}}>
+          <div style={{display:"flex",alignItems:"center",gap:8}}><Ic.Alert/>{expiredList.length} contract{expiredList.length>1?"s":""} EXPIRED</div>
+          <span style={{fontSize:11}}>{showExpired?"▲ Hide":"▼ Show"}</span>
+        </div>
+      )}
+      {exp30List.length>0&&(
+        <div className="alert-pill" style={{background:T.warn+"18",border:`1px solid ${T.warn}44`,color:T.warn}}
+          onClick={()=>{setShowExpired(false);setShowExpiring(v=>!v);}}>
+          <div style={{display:"flex",alignItems:"center",gap:8}}><Ic.Bell/>{exp30List.length} expiring within 30 days</div>
+          <span style={{fontSize:11}}>{showExpiring?"▲ Hide":"▼ Show"}</span>
+        </div>
+      )}
+
+      {/* Expandable list */}
+      {(showExpired||showExpiring)&&(
+        <div className="card" style={{marginBottom:12,borderColor:showExpired?T.danger+"44":T.warn+"44"}}>
+          <div style={{fontSize:12,fontWeight:700,color:showExpired?T.danger:T.warn,marginBottom:10}}>
+            {showExpired?"Expired Contracts":"Expiring Within 30 Days"}
+          </div>
+          {(showExpired?expiredList:exp30List).map(c=>{const b=expiryBadge(c.amcEnd);return(
+            <div key={c.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:`1px solid ${T.border}`}}>
+              <div><div style={{fontSize:13,fontWeight:600,color:"#fff"}}>{c.name}</div><div style={{fontSize:11,color:T.muted}}>📍 {c.location} · {c.amcEnd||"—"}</div></div>
+              <span className="tag" style={{background:b.color+"22",color:b.color,fontSize:10}}>{b.label}</span>
+            </div>
+          );})}
+        </div>
+      )}
+
+      {/* Stats */}
       <div className="stat-grid" style={{marginBottom:16}}>
-        {[{l:"Total Plants",v:total,c:T.light,e:"🏭"},{l:"Active",v:active,c:T.accent2,e:"✅"},{l:"Expiring ≤30d",v:exp30,c:T.warn,e:"⏳"},{l:"Expired",v:expired,c:T.danger,e:"❌"}].map(s=>(
+        {[{l:"Total Plants",v:total,c:T.light,e:"🏭"},{l:"Active",v:active,c:T.accent2,e:"✅"},{l:"Expiring ≤30d",v:exp30List.length,c:T.warn,e:"⏳"},{l:"Expired",v:expiredList.length,c:T.danger,e:"❌"}].map(s=>(
           <div key={s.l} className="card" style={{cursor:"pointer",borderColor:s.c+"33"}} onClick={()=>onTab("customers")}>
             <div style={{fontSize:11,marginBottom:4}}>{s.e}</div>
             <div style={{fontSize:34,fontWeight:800,color:s.c,fontFamily:T.mono,lineHeight:1}}>{s.v}</div>
@@ -458,6 +497,8 @@ const Dashboard = ({customers,reports,user,onTab,firebaseOk}) => {
           </div>
         ))}
       </div>
+
+      {/* Monthly progress */}
       <div className="card" style={{marginBottom:16}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:12}}>
           <div><div className="sec-lbl">Monthly Visits</div><div style={{fontSize:30,fontWeight:800,color:"#fff",fontFamily:T.mono}}>{monthR}<span style={{fontSize:14,color:T.muted,fontWeight:400}}> / {total}</span></div></div>
@@ -468,6 +509,18 @@ const Dashboard = ({customers,reports,user,onTab,firebaseOk}) => {
         </div>
         <div style={{fontSize:11,color:T.muted,marginTop:8}}>{new Date().toLocaleDateString("en-AE",{month:"long",year:"numeric"})}</div>
       </div>
+
+      {/* Export */}
+      <div style={{marginBottom:16}}>
+        <div className="sec-lbl">Export Plant List</div>
+        <div style={{display:"flex",gap:9,flexWrap:"wrap"}}>
+          <button className="btn-s" style={{fontSize:13,padding:"9px 16px"}} onClick={()=>exportExcel(customers)}><Ic.Excel/> Export to Excel / CSV</button>
+          <button className="btn-p" style={{fontSize:13,padding:"9px 16px"}} onClick={()=>exportPlantsPDF(customers)}><Ic.PDF/> Export to PDF</button>
+        </div>
+        <div style={{fontSize:11,color:T.muted,marginTop:6}}>PDF includes expired &amp; expiring summary · CSV opens in Excel</div>
+      </div>
+
+      {/* Upcoming expirations */}
       <div className="sec-lbl">⚠ Upcoming Expirations</div>
       {customers.filter(c=>{const d=daysUntil(c.amcEnd);return d!==null&&d<=90;}).sort((a,b)=>daysUntil(a.amcEnd)-daysUntil(b.amcEnd)).slice(0,6).map(c=>{
         const b=expiryBadge(c.amcEnd);
@@ -481,17 +534,17 @@ const Dashboard = ({customers,reports,user,onTab,firebaseOk}) => {
         );
       })}
       {customers.filter(c=>{const d=daysUntil(c.amcEnd);return d!==null&&d<=90;}).length===0&&(
-        <div style={{textAlign:"center",padding:"30px 20px",color:T.muted}}><div style={{fontSize:32,marginBottom:8}}>✅</div><div style={{fontSize:14,fontWeight:600,color:T.accent2}}>All contracts healthy</div></div>
+        <div style={{textAlign:"center",padding:"28px 20px",color:T.muted}}><div style={{fontSize:30,marginBottom:8}}>✅</div><div style={{fontSize:14,fontWeight:600,color:T.accent2}}>All contracts healthy</div></div>
       )}
     </div>
   );
 };
 
-// ─── Customers ────────────────────────────────────────────────────────────────
+// ─── Customers Page ─────────────────────────────────────────────────────────
 const Customers = ({customers,setCustomers,user}) => {
   const [search,setSearch]=useState(""), [em,setEm]=useState("All"), [modal,setModal]=useState(null);
   const filtered=customers.filter(c=>(em==="All"||c.emirate===em)&&(c.name.toLowerCase().includes(search.toLowerCase())||c.location.toLowerCase().includes(search.toLowerCase())));
-  const save=f=>{ if(modal==="add") setCustomers(cs=>[...cs,{...f,id:uid()}]); else setCustomers(cs=>cs.map(c=>c.id===modal.id?{...f,id:c.id}:c)); setModal(null); };
+  const save=f=>{if(modal==="add")setCustomers(cs=>[...cs,{...f,id:uid()}]);else setCustomers(cs=>cs.map(c=>c.id===modal.id?{...f,id:c.id}:c));setModal(null);};
   return(
     <div className="pg fade-up">
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
@@ -510,6 +563,8 @@ const Customers = ({customers,setCustomers,user}) => {
               <div style={{fontSize:12,color:T.muted,marginTop:3}}>📍 {c.location} · 🏛 {c.emirate}</div>
               <div style={{fontSize:12,color:T.muted}}>💧 {c.capacity||"—"} · 📋 {c.docNo||"—"}</div>
               <div style={{fontSize:12,color:T.muted}}>🗓 {c.amcStart||"—"} → {c.amcEnd||"—"} ({c.duration})</div>
+              {c.address&&<div style={{fontSize:12,color:T.muted}}>📌 {c.address}</div>}
+              {c.lat&&c.lng&&<a href={`https://maps.google.com?q=${c.lat},${c.lng}`} target="_blank" rel="noopener noreferrer" style={{fontSize:11,color:T.accent,display:"block",marginTop:2,textDecoration:"none"}}>🗺 View on Maps ({Number(c.lat).toFixed(4)}, {Number(c.lng).toFixed(4)})</a>}
             </div>
             <span className="tag" style={{background:b.color+"22",color:b.color,border:`1px solid ${b.color}33`,marginLeft:10,flexShrink:0}}>{b.label}</span>
           </div>
@@ -526,13 +581,25 @@ const Customers = ({customers,setCustomers,user}) => {
   );
 };
 
-// ─── Route Planner ────────────────────────────────────────────────────────────
-const Route = ({customers}) => {
+// ─── Route Planner ──────────────────────────────────────────────────────────
+const Route = ({customers,setCustomers,user}) => {
   const [em,setEm]=useState("Abu Dhabi");
+  const [editLoc,setEditLoc]=useState(null);
+  const [tempLoc,setTempLoc]=useState({});
   const EC={"Abu Dhabi":{lat:24.2,lng:55.7},"Dubai":{lat:25.2,lng:55.27},"Sharjah":{lat:25.35,lng:55.41},"Ajman":{lat:25.4,lng:55.44},"Ras Al Khaimah":{lat:25.78,lng:55.94},"Fujairah":{lat:25.12,lng:56.34},"Umm Al Quwain":{lat:25.55,lng:55.55}};
   const plants=customers.filter(c=>c.emirate===em&&c.lat&&c.lng);
+  const noGPS=customers.filter(c=>c.emirate===em&&(!c.lat||!c.lng));
   const optimize=pts=>{if(!pts.length)return[];let cur=EC[em]||{lat:24.2,lng:55.7},rem=[...pts],route=[];while(rem.length){let ni=0,md=Infinity;rem.forEach((p,i)=>{const d=Math.hypot(p.lat-cur.lat,p.lng-cur.lng);if(d<md){md=d;ni=i;}});route.push(rem[ni]);cur=rem[ni];rem.splice(ni,1);}return route;};
   const route=optimize(plants);
+  const openEdit=p=>{setEditLoc(p);setTempLoc({lat:p.lat||"",lng:p.lng||"",address:p.address||""});};
+  const getGPS=()=>{
+    if(!navigator.geolocation){alert("GPS not available");return;}
+    navigator.geolocation.getCurrentPosition(pos=>{setTempLoc(t=>({...t,lat:pos.coords.latitude.toFixed(6),lng:pos.coords.longitude.toFixed(6)}));},()=>alert("Could not get GPS location"));
+  };
+  const saveLocation=()=>{
+    setCustomers(cs=>cs.map(c=>c.id===editLoc.id?{...c,lat:tempLoc.lat,lng:tempLoc.lng,address:tempLoc.address}:c));
+    setEditLoc(null);
+  };
   return(
     <div className="pg fade-up">
       <div style={{marginBottom:14}}><div style={{fontSize:22,fontWeight:800,color:"#fff"}}>Route Planner</div><div style={{fontSize:12,color:T.muted}}>Nearest-neighbor optimization · minimize travel</div></div>
@@ -543,29 +610,95 @@ const Route = ({customers}) => {
         <div><div style={{fontWeight:700,color:"#fff",fontSize:15}}>{em}</div><div style={{fontSize:12,color:T.muted}}>{route.length} stops optimized</div></div>
         {route.length>0&&<a href={`https://www.google.com/maps/dir/${route.map(p=>`${p.lat},${p.lng}`).join("/")}`} target="_blank" rel="noopener noreferrer" style={{background:`linear-gradient(135deg,${T.mid},${T.bright})`,color:"#fff",padding:"9px 15px",borderRadius:9,fontSize:12,fontWeight:700,textDecoration:"none",display:"flex",alignItems:"center",gap:6}}><Ic.Map/> Open Maps</a>}
       </div>
-      {route.length===0&&<div style={{textAlign:"center",padding:50,color:T.muted}}><div style={{fontSize:36,marginBottom:8}}>🗺</div>No GPS-tagged plants in {em}<div style={{fontSize:12,marginTop:5}}>Add coordinates via Edit Plant</div></div>}
+
+      {noGPS.length>0&&(
+        <div style={{background:T.warn+"14",border:`1px solid ${T.warn}33`,borderRadius:11,padding:12,marginBottom:14}}>
+          <div style={{fontSize:12,color:T.warn,fontWeight:700,marginBottom:8}}>⚠ {noGPS.length} plant{noGPS.length>1?"s":""} missing GPS — tap to add location</div>
+          {noGPS.map(p=>(
+            <div key={p.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"6px 0",borderBottom:`1px solid ${T.border}`}}>
+              <div><div style={{fontSize:13,color:"#fff",fontWeight:600}}>{p.name}</div><div style={{fontSize:11,color:T.muted}}>📍 {p.location}</div></div>
+              <button className="btn-soft" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>openEdit(p)}><Ic.GPS/> Add Location</button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {route.length===0&&plants.length===0&&<div style={{textAlign:"center",padding:50,color:T.muted}}><div style={{fontSize:36,marginBottom:8}}>🗺</div>No GPS-tagged plants in {em}<div style={{fontSize:12,marginTop:5}}>Add coordinates via Plants → Edit, or tap "Add Location" above</div></div>}
       {route.map((s,i)=>{const b=expiryBadge(s.amcEnd);const next=route[i+1];return(
         <div key={s.id} className="rs">
           <div className="rn">{i+1}</div>
           <div style={{flex:1}}>
             <div style={{fontWeight:700,color:"#fff",fontSize:14}}>{s.name}</div>
             <div style={{fontSize:12,color:T.muted}}>📍 {s.location} · 💧 {s.capacity||"—"}</div>
+            {s.address&&<div style={{fontSize:11,color:T.muted}}>📌 {s.address}</div>}
+            <a href={`https://maps.google.com?q=${s.lat},${s.lng}`} target="_blank" rel="noopener noreferrer" style={{fontSize:11,color:T.accent,textDecoration:"none",display:"block",marginTop:2}}>🗺 {Number(s.lat).toFixed(4)}, {Number(s.lng).toFixed(4)}</a>
             {next&&<div style={{fontSize:11,color:T.light,marginTop:3}}>↓ ~{(Math.hypot(next.lat-s.lat,next.lng-s.lng)*111).toFixed(1)} km to next</div>}
           </div>
-          <span className="tag" style={{background:b.color+"22",color:b.color,fontSize:10}}>{b.label}</span>
+          <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6}}>
+            <span className="tag" style={{background:b.color+"22",color:b.color,fontSize:10}}>{b.label}</span>
+            <button className="btn-soft" style={{fontSize:10,padding:"3px 8px"}} onClick={()=>openEdit(s)}><Ic.GPS/></button>
+          </div>
         </div>
       );})}
+
+      {editLoc&&(
+        <div className="overlay">
+          <div className="modal" style={{maxWidth:420}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+              <div style={{fontSize:15,fontWeight:800,color:"#fff"}}>Edit Location</div>
+              <button className="btn-g" style={{padding:"5px 8px"}} onClick={()=>setEditLoc(null)}><Ic.X/></button>
+            </div>
+            <div style={{fontSize:13,color:T.muted,marginBottom:14}}>Plant: <strong style={{color:"#fff"}}>{editLoc.name}</strong></div>
+            <div className="fg"><label>Full Address</label><input value={tempLoc.address||""} onChange={e=>setTempLoc(t=>({...t,address:e.target.value}))} placeholder="e.g. Al Khatem, Abu Dhabi"/></div>
+            <div className="g2">
+              <div className="fg"><label>Latitude</label><input type="number" step="0.000001" value={tempLoc.lat||""} onChange={e=>setTempLoc(t=>({...t,lat:e.target.value}))} placeholder="24.192"/></div>
+              <div className="fg"><label>Longitude</label><input type="number" step="0.000001" value={tempLoc.lng||""} onChange={e=>setTempLoc(t=>({...t,lng:e.target.value}))} placeholder="55.763"/></div>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              <button className="btn-p" style={{justifyContent:"center"}} onClick={getGPS}><Ic.GPS/> Use My Current GPS Location</button>
+              <button className="btn-soft" style={{justifyContent:"center"}} onClick={()=>window.open(`https://maps.google.com?q=${encodeURIComponent(tempLoc.address||editLoc.name)}`,"_blank")}><Ic.Map/> Search on Google Maps</button>
+              <button className="btn-s" style={{justifyContent:"center"}} onClick={saveLocation}><Ic.Save/> Save Location</button>
+            </div>
+            <div style={{fontSize:11,color:T.muted,marginTop:10}}>💡 Best: visit the plant and tap "Use My Current GPS Location"</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-// ─── Report Form ──────────────────────────────────────────────────────────────
+// ─── Report Form ────────────────────────────────────────────────────────────
 const ReportForm = ({customer,techName,onSave,onClose}) => {
   const [f,setF]=useState({customerId:customer.id,customerName:customer.name,location:customer.location,capacity:customer.capacity,operatorName:customer.operatorName||"",technicianName:techName,visitDate:todayStr(),lastVisitDate:"",nextVisitDate:"",contactNo:customer.contactNo||"",warrantyValid:customer.amcEnd||"",plantNo:customer.docNo||"",membraneType:"",membraneName:"",noOfMembrane:"",pumpTypes:["","","","",""],readings:{},wellSamples:{well1:"",well2:"",well3:"",well4:""},productWater:"",rejectWater:"",remarks:"",signature:"",photos:[]});
+  const [submitted,setSubmitted]=useState(null);
   const set=(k,v)=>setF(x=>({...x,[k]:v}));
   const fileRef=useRef();
   const addPhotos=async files=>{const c=await Promise.all(Array.from(files).slice(0,6).map(compressImg));setF(x=>({...x,photos:[...(x.photos||[]),...c].slice(0,8)}));};
   const D=({t})=>(<div className="divr"><span>{t}</span></div>);
+  const handleSubmit=()=>{
+    const rep={...f,id:uid(),date:f.visitDate,submittedBy:techName,submittedAt:new Date().toISOString()};
+    setSubmitted(rep);
+    onSave(f);
+  };
+
+  // Success screen
+  if(submitted) return(
+    <div className="overlay">
+      <div className="modal" style={{maxWidth:380,textAlign:"center"}}>
+        <div style={{fontSize:50,marginBottom:10}}>✅</div>
+        <div style={{fontSize:18,fontWeight:800,color:"#fff",marginBottom:6}}>Report Submitted!</div>
+        <div style={{fontSize:13,color:T.muted,marginBottom:22}}>Visit report for <strong style={{color:"#fff"}}>{submitted.customerName}</strong> saved successfully.</div>
+        <div style={{display:"flex",flexDirection:"column",gap:9}}>
+          <button className="btn-wa" style={{justifyContent:"center",padding:"11px",fontSize:14}} onClick={()=>shareReport(submitted,"whatsapp")}><Ic.WA/> Share via WhatsApp</button>
+          <button className="btn-em" style={{justifyContent:"center",padding:"11px",fontSize:14}} onClick={()=>shareReport(submitted,"email")}><Ic.Email/> Send via Email</button>
+          <button className="btn-p" style={{justifyContent:"center",padding:"11px",fontSize:14}} onClick={()=>exportReportPDF(submitted)}><Ic.PDF/> Export as PDF</button>
+          <button className="btn-soft" style={{justifyContent:"center",padding:"11px",fontSize:14}} onClick={onClose}>Close</button>
+        </div>
+        <div style={{marginTop:12,fontSize:11,color:T.muted}}>WhatsApp &amp; Email share a summary. PDF has the full report.</div>
+      </div>
+    </div>
+  );
+
   return(
     <div className="overlay" style={{alignItems:"flex-start",paddingTop:10}}>
       <div className="modal" style={{maxWidth:700}}>
@@ -604,7 +737,7 @@ const ReportForm = ({customer,techName,onSave,onClose}) => {
         <D t="OPERATOR / TECHNICIAN SIGNATURE"/>
         <SigPad onSave={v=>set("signature",v)} onClear={()=>set("signature","")}/>
         <div style={{display:"flex",gap:10,marginTop:20}}>
-          <button className="btn-s" style={{flex:1,justifyContent:"center",fontSize:14,padding:"12px"}} onClick={()=>onSave(f)}><Ic.Check/> Submit Report</button>
+          <button className="btn-s" style={{flex:1,justifyContent:"center",fontSize:14,padding:"12px"}} onClick={handleSubmit}><Ic.Check/> Submit Report</button>
           <button className="btn-soft" onClick={onClose}>Cancel</button>
         </div>
       </div>
@@ -612,7 +745,7 @@ const ReportForm = ({customer,techName,onSave,onClose}) => {
   );
 };
 
-// ─── Reports ──────────────────────────────────────────────────────────────────
+// ─── Reports Page ────────────────────────────────────────────────────────────
 const Reports = ({customers,reports,setReports,user}) => {
   const [step,setStep]=useState("list"), [selC,setSelC]=useState(null), [view,setView]=useState(null);
   const [month,setMonth]=useState(new Date().toISOString().slice(0,7));
@@ -638,9 +771,11 @@ const Reports = ({customers,reports,setReports,user}) => {
               <span className="tag" style={{background:T.accent2+"22",color:T.accent2,flexShrink:0,alignSelf:"flex-start"}}>✔ Done</span>
             </div>
           </div>
-          <div style={{display:"flex",gap:7,marginTop:10}}>
-            <button className="btn-g" style={{padding:"5px 12px",fontSize:12}} onClick={()=>setView(r)}>View</button>
-            <button className="btn-soft" style={{padding:"5px 12px",fontSize:12}} onClick={()=>exportPDF(r)}><Ic.PDF/> PDF</button>
+          <div style={{display:"flex",gap:7,marginTop:10,flexWrap:"wrap"}}>
+            <button className="btn-g"  style={{padding:"5px 11px",fontSize:12}} onClick={()=>setView(r)}>View</button>
+            <button className="btn-soft" style={{padding:"5px 11px",fontSize:12}} onClick={()=>exportReportPDF(r)}><Ic.PDF/> PDF</button>
+            <button className="btn-wa" style={{padding:"5px 11px",fontSize:12}} onClick={()=>shareReport(r,"whatsapp")}><Ic.WA/> WA</button>
+            <button className="btn-em" style={{padding:"5px 11px",fontSize:12}} onClick={()=>shareReport(r,"email")}><Ic.Email/> Email</button>
             {user.role==="admin"&&<button className="btn-d" style={{padding:"5px 9px",fontSize:12}} onClick={()=>{if(window.confirm("Delete this report?"))setReports(rs=>rs.filter(x=>x.id!==r.id));}}><Ic.Trash/></button>}
           </div>
         </div>
@@ -670,10 +805,13 @@ const Reports = ({customers,reports,setReports,user}) => {
           <div className="modal" style={{maxWidth:700}}>
             <div style={{background:`linear-gradient(135deg,${T.navy},${T.mid})`,margin:"-24px -24px 20px",padding:"18px 24px",borderRadius:"18px 18px 0 0",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div><div style={{fontSize:16,fontWeight:800,color:"#fff"}}>{view.customerName}</div><div style={{fontSize:12,color:"rgba(255,255,255,0.55)"}}>📅 {view.date} · 👤 {view.submittedBy}</div></div>
-              <div style={{display:"flex",gap:7}}>
-                <button onClick={()=>exportPDF(view)} style={{background:"rgba(255,255,255,0.14)",color:"#fff",border:"none",borderRadius:8,padding:"7px 11px",fontSize:12,cursor:"pointer",fontFamily:T.font,fontWeight:600,display:"flex",alignItems:"center",gap:5}}><Ic.PDF/> PDF</button>
-                <button onClick={()=>setView(null)} style={{background:"rgba(255,255,255,0.14)",color:"#fff",border:"none",borderRadius:8,padding:"7px 8px",cursor:"pointer",display:"flex",alignItems:"center"}}><Ic.X/></button>
-              </div>
+              <button onClick={()=>setView(null)} style={{background:"rgba(255,255,255,0.14)",color:"#fff",border:"none",borderRadius:8,padding:"7px 8px",cursor:"pointer",display:"flex"}}><Ic.X/></button>
+            </div>
+            {/* Action buttons */}
+            <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>
+              <button className="btn-p"  style={{padding:"8px 13px",fontSize:12}} onClick={()=>exportReportPDF(view)}><Ic.PDF/> PDF</button>
+              <button className="btn-wa" style={{padding:"8px 13px",fontSize:12}} onClick={()=>shareReport(view,"whatsapp")}><Ic.WA/> WhatsApp</button>
+              <button className="btn-em" style={{padding:"8px 13px",fontSize:12}} onClick={()=>shareReport(view,"email")}><Ic.Email/> Email</button>
             </div>
             <div className="g2" style={{marginBottom:13}}>
               {[["Plant",view.customerName],["Location",view.location],["Visit Date",view.date],["Technician",view.technicianName],["Operator",view.operatorName],["Next Visit",view.nextVisitDate],["Product Water",view.productWater],["Reject Water",view.rejectWater]].map(([k,v])=>(
@@ -686,7 +824,14 @@ const Reports = ({customers,reports,setReports,user}) => {
             </div>
             {view.remarks&&<div style={{background:T.bg,border:`1px solid ${T.border}`,borderRadius:9,padding:11,marginBottom:13}}><div style={{fontSize:9,color:T.muted,fontWeight:700,letterSpacing:1,marginBottom:4}}>REMARKS</div><div style={{fontSize:13}}>{view.remarks}</div></div>}
             {view.photos?.length>0&&<div style={{marginBottom:13}}><div className="sec-lbl">SITE PHOTOS</div><div className="photo-wrap">{view.photos.map((p,i)=><img key={i} src={p} className="photo-thumb" alt="" onClick={()=>window.open(p,"_blank")}/>)}</div></div>}
-            {view.signature&&<div style={{marginBottom:13}}><div className="sec-lbl">SIGNATURE</div><img src={view.signature} alt="sig" style={{border:`1px solid ${T.border}`,borderRadius:9,maxWidth:"100%",background:T.bg,maxHeight:110}}/></div>}
+            {view.signature&&(
+              <div style={{marginBottom:13}}>
+                <div className="sec-lbl">SIGNATURE</div>
+                <div style={{background:"#fff",borderRadius:9,padding:8,display:"inline-block",border:`2px solid ${T.border}`}}>
+                  <img src={view.signature} alt="sig" style={{maxWidth:"100%",maxHeight:110,display:"block"}}/>
+                </div>
+              </div>
+            )}
             <div style={{fontSize:10,color:T.muted,textAlign:"right"}}>Submitted {new Date(view.submittedAt).toLocaleString()}</div>
           </div>
         </div>
@@ -695,7 +840,7 @@ const Reports = ({customers,reports,setReports,user}) => {
   );
 };
 
-// ─── Settings ─────────────────────────────────────────────────────────────────
+// ─── Settings ───────────────────────────────────────────────────────────────
 const Settings = ({user,onLogout,customers,reports,firebaseOk}) => {
   const exp=customers.filter(c=>daysUntil(c.amcEnd)!==null&&daysUntil(c.amcEnd)<0);
   const warn60=customers.filter(c=>{const d=daysUntil(c.amcEnd);return d!==null&&d>=0&&d<=60;});
@@ -705,11 +850,8 @@ const Settings = ({user,onLogout,customers,reports,firebaseOk}) => {
       <div style={{fontSize:22,fontWeight:800,color:"#fff",marginBottom:16}}>Settings</div>
       <div style={{background:`linear-gradient(135deg,${T.navy},${T.mid})`,borderRadius:14,padding:20,marginBottom:12,position:"relative",overflow:"hidden"}}>
         <div style={{position:"absolute",top:-18,right:-18,width:90,height:90,borderRadius:"50%",background:"rgba(255,255,255,0.06)"}}/>
-        <Logo size={26}/>
-        <div style={{fontSize:10,color:"rgba(255,255,255,0.42)",marginTop:10,letterSpacing:1}}>AMC MANAGEMENT SYSTEM</div>
-        <div style={{fontSize:11,color:"rgba(255,255,255,0.45)",marginTop:2}}>superquality-est.com</div>
+        <Logo size={26}/><div style={{fontSize:10,color:"rgba(255,255,255,0.42)",marginTop:10,letterSpacing:1}}>AMC MANAGEMENT SYSTEM</div><div style={{fontSize:11,color:"rgba(255,255,255,0.45)",marginTop:2}}>superquality-est.com</div>
       </div>
-
       <div className="card" style={{marginBottom:12}}>
         <div className="sec-lbl">Account</div>
         <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:10}}>
@@ -719,18 +861,16 @@ const Settings = ({user,onLogout,customers,reports,firebaseOk}) => {
         </div>
         {user.role==="technician"&&<div style={{fontSize:12,color:T.muted,padding:"8px 11px",background:T.bg,borderRadius:8}}>View-only access. Contact admin to add or edit plants.</div>}
       </div>
-
       <div className="card" style={{marginBottom:12}}>
         <div className="sec-lbl">Data Sync</div>
         <div style={{display:"flex",alignItems:"center",gap:10,padding:"6px 0"}}>
           <span style={{width:10,height:10,borderRadius:"50%",background:firebaseOk?T.accent2:T.warn,boxShadow:firebaseOk?`0 0 8px ${T.accent2}`:undefined,display:"inline-block",flexShrink:0}}/>
           <div>
-            <div style={{fontSize:13,fontWeight:600,color:"#fff"}}>{firebaseOk?"Firebase Connected — Live Sync":"Local Storage Only"}</div>
-            <div style={{fontSize:11,color:T.muted}}>{firebaseOk?"Reports sync across all devices in real time":"Set up Firebase to share reports between users"}</div>
+            <div style={{fontSize:13,fontWeight:600,color:"#fff"}}>{firebaseOk?"Firebase Connected — Live Sync Active":"Local Storage Only"}</div>
+            <div style={{fontSize:11,color:T.muted}}>{firebaseOk?"All devices sync in real time. Free forever (1GB limit — your usage is tiny).":"Set up Firebase to share reports between users"}</div>
           </div>
         </div>
       </div>
-
       <div className="card" style={{marginBottom:12}}>
         <div className="sec-lbl">System Stats</div>
         <Row l="Total Plants" v={customers.length} c={T.light}/>
@@ -738,7 +878,6 @@ const Settings = ({user,onLogout,customers,reports,firebaseOk}) => {
         <Row l="Expired Contracts" v={exp.length} c={exp.length>0?T.danger:T.accent2}/>
         <Row l="Expiring ≤60 Days" v={warn60.length} c={warn60.length>0?T.warn:T.accent2}/>
       </div>
-
       <div className="card" style={{marginBottom:12}}>
         <div className="sec-lbl">Contract Alerts</div>
         {exp.length===0&&warn60.length===0?<div style={{color:T.accent2,fontSize:13,display:"flex",alignItems:"center",gap:8}}><Ic.Check/> All contracts up to date</div>
@@ -749,7 +888,6 @@ const Settings = ({user,onLogout,customers,reports,firebaseOk}) => {
           </div>
         );})}
       </div>
-
       {user.role==="admin"&&(
         <div className="card" style={{marginBottom:12}}>
           <div className="sec-lbl">App Users</div>
@@ -767,64 +905,59 @@ const Settings = ({user,onLogout,customers,reports,firebaseOk}) => {
   );
 };
 
-// ─── App Root ─────────────────────────────────────────────────────────────────
+// ─── App Root ────────────────────────────────────────────────────────────────
 export default function App() {
   useEffect(()=>injectCSS(),[]);
+  const [firebaseOk,setFirebaseOk]=useState(false);
+  const [user,setUser]=useState(null);
+  const [tab,setTab]=useState("home");
+  const [customers,setRawC]=useState(SEED_CUSTOMERS);
+  const [reports,setRawR]=useState([]);
+  const [loading,setLoading]=useState(true);
 
-  const [firebaseOk, setFirebaseOk] = useState(false);
-  const [user, setUser]             = useState(null);
-  const [tab, setTab]               = useState("home");
-  const [customers, setRawC]        = useState(SEED_CUSTOMERS);
-  const [reports, setRawR]          = useState([]);
-  const [loading, setLoading]       = useState(true);
-
-  // ── Init Firebase ────────────────────────────────────────────────────────────
+  // Init Firebase & load data
   useEffect(()=>{
     fbInit().then(ok=>{
       setFirebaseOk(ok);
       if(ok){
-        fbListen("sq_customers", data=>{ if(data) setRawC(Object.values(data)); });
-        fbListen("sq_reports",   data=>{ if(data) setRawR(Object.values(data).sort((a,b)=>new Date(b.submittedAt||0)-new Date(a.submittedAt||0))); });
+        fbListen("sq_customers",data=>{if(data)setRawC(Object.values(data));});
+        fbListen("sq_reports",data=>{if(data)setRawR(Object.values(data).sort((a,b)=>new Date(b.submittedAt||0)-new Date(a.submittedAt||0)));});
       } else {
-        const c=local.get("sq:customers"); if(c) setRawC(c);
-        const r=local.get("sq:reports");   if(r) setRawR(r);
+        const c=local.get("sq:customers");if(c)setRawC(c);
+        const r=local.get("sq:reports");if(r)setRawR(r);
       }
       setLoading(false);
     });
   },[]);
 
-  // ── Restore login session on page refresh ────────────────────────────────────
+  // Restore session on page refresh
   useEffect(()=>{
-    const s = local.get("sq_session");
-    if(s?.user && (Date.now()-s.ts < 8*60*60*1000)){
-      setUser(s.user);  // stays logged in for 8 hours
-    }
+    const s=local.get("sq_session");
+    if(s?.user&&(Date.now()-s.ts<8*60*60*1000)) setUser(s.user);
   },[]);
 
-  // ── Persist customers ────────────────────────────────────────────────────────
-  const setCustomers = useCallback(upd=>{
+  const setCustomers=useCallback(upd=>{
     setRawC(prev=>{
-      const next = typeof upd==="function" ? upd(prev) : upd;
-      if(firebaseOk){ const o={}; next.forEach(c=>{ o[c.id]=c; }); fbSet("sq_customers",o); }
-      else { local.set("sq:customers",next); }
+      const next=typeof upd==="function"?upd(prev):upd;
+      if(firebaseOk){const o={};next.forEach(c=>{o[c.id]=c;});fbSet("sq_customers",o);}
+      else{local.set("sq:customers",next);}
       return next;
     });
   },[firebaseOk]);
 
-  // ── Persist reports ──────────────────────────────────────────────────────────
-  const setReports = useCallback(upd=>{
+  const setReports=useCallback(upd=>{
     setRawR(prev=>{
-      const next = typeof upd==="function" ? upd(prev) : upd;
-      if(firebaseOk){ const o={}; next.forEach(r=>{ o[r.id]=r; }); fbSet("sq_reports",o); }
-      else { local.set("sq:reports",next); }
+      const next=typeof upd==="function"?upd(prev):upd;
+      if(firebaseOk){const o={};next.forEach(r=>{o[r.id]=r;});fbSet("sq_reports",o);}
+      else{local.set("sq:reports",next);}
       return next;
     });
   },[firebaseOk]);
 
-  const logout = () => { local.del("sq_session"); setUser(null); setTab("home"); };
-  const alertCount = customers.filter(c=>{const d=daysUntil(c.amcEnd);return d!==null&&d<=30;}).length;
+  const logout=()=>{local.del("sq_session");setUser(null);setTab("home");};
+  const alertCount=customers.filter(c=>{const d=daysUntil(c.amcEnd);return d!==null&&d<=30;}).length;
 
-  const TABS = [
+  const TABS=[
     {id:"home",     label:"Home",    I:Ic.Home},
     {id:"customers",label:"Plants",  I:Ic.Plants},
     {id:"route",    label:"Route",   I:Ic.Route},
@@ -833,14 +966,13 @@ export default function App() {
   ];
 
   if(!user) return <Login onLogin={u=>{setUser(u);setTab("home");}} firebaseOk={firebaseOk}/>;
-
   if(loading) return(
     <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:`linear-gradient(135deg,${T.navy},${T.mid})`,flexDirection:"column",gap:20}}>
       <Logo size={32}/><div style={{color:"rgba(255,255,255,0.38)",fontSize:11,letterSpacing:3}}>LOADING…</div>
     </div>
   );
 
-  const pp = {customers,reports,user,firebaseOk};
+  const pp={customers,reports,user,firebaseOk};
 
   return(
     <div className="shell">
@@ -848,19 +980,19 @@ export default function App() {
       <div className="tbar">
         <Logo size={22}/>
         <div style={{display:"flex",alignItems:"center",gap:11}}>
-          {alertCount>0&&<div style={{position:"relative",cursor:"pointer",color:T.warn,display:"flex"}} onClick={()=>setTab("settings")}><Ic.Bell/><span style={{position:"absolute",top:-5,right:-5,background:T.danger,color:"#fff",borderRadius:10,fontSize:9,padding:"1px 5px",fontWeight:800,lineHeight:1.5}}>{alertCount}</span></div>}
+          {alertCount>0&&<div style={{position:"relative",cursor:"pointer",color:T.warn,display:"flex"}} onClick={()=>setTab("settings")}>
+            <Ic.Bell/><span style={{position:"absolute",top:-5,right:-5,background:T.danger,color:"#fff",borderRadius:10,fontSize:9,padding:"1px 5px",fontWeight:800,lineHeight:1.5}}>{alertCount}</span>
+          </div>}
           <div style={{display:"flex",alignItems:"center",gap:7}}>
             <span className="dot-live"/>
             <div style={{width:30,height:30,borderRadius:"50%",background:`linear-gradient(135deg,${T.mid},${T.bright})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,color:"#fff"}}>{user.name.charAt(0)}</div>
-            <span style={{fontSize:12,color:T.muted,display:"none",["@media(min-width:640px)"]:{display:"block"}}}>{user.name}</span>
           </div>
         </div>
       </div>
 
       {/* Body: sidebar + main */}
       <div style={{display:"flex",flex:1,overflow:"hidden"}}>
-        {/* Sidebar — tablet/desktop */}
-        <aside style={{width:205,background:T.navy,borderRight:`1px solid ${T.border}`,display:"none",flexDirection:"column",padding:"14px 10px",gap:3,position:"sticky",top:53,height:"calc(100vh - 53px)",overflowY:"auto",flexShrink:0}} className="sidebar-desktop" id="sidebar">
+        <aside className="sidebar" id="sidebar" style={{flexDirection:"column"}}>
           <div style={{fontSize:9,color:T.muted,fontWeight:700,letterSpacing:2,padding:"10px 13px 5px",textTransform:"uppercase"}}>Navigation</div>
           {TABS.map(t=>(
             <button key={t.id} className={`sitem ${tab===t.id?"on":""}`} onClick={()=>setTab(t.id)}>
@@ -875,13 +1007,12 @@ export default function App() {
           </div>
         </aside>
 
-        {/* Main content */}
         <main style={{flex:1,overflowY:"auto",minWidth:0}}>
-          {tab==="home"       && <Dashboard  {...pp} onTab={setTab}/>}
-          {tab==="customers"  && <Customers  {...pp} setCustomers={setCustomers}/>}
-          {tab==="route"      && <Route      customers={customers}/>}
-          {tab==="reports"    && <Reports    {...pp} setReports={setReports}/>}
-          {tab==="settings"   && <Settings   {...pp} onLogout={logout}/>}
+          {tab==="home"      &&<Dashboard {...pp} onTab={setTab}/>}
+          {tab==="customers" &&<Customers {...pp} setCustomers={setCustomers}/>}
+          {tab==="route"     &&<Route customers={customers} setCustomers={setCustomers} user={user}/>}
+          {tab==="reports"   &&<Reports  {...pp} setReports={setReports}/>}
+          {tab==="settings"  &&<Settings {...pp} onLogout={logout}/>}
         </main>
       </div>
 
@@ -894,9 +1025,6 @@ export default function App() {
           </button>
         ))}
       </nav>
-
-      {/* Inject sidebar show/hide via media query */}
-      <style>{`@media(min-width:768px){#sidebar{display:flex!important}}`}</style>
     </div>
   );
 }

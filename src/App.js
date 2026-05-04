@@ -867,7 +867,7 @@ const Settings = ({user,onLogout,customers,reports,firebaseOk}) => {
           <span style={{width:10,height:10,borderRadius:"50%",background:firebaseOk?T.accent2:T.warn,boxShadow:firebaseOk?`0 0 8px ${T.accent2}`:undefined,display:"inline-block",flexShrink:0}}/>
           <div>
             <div style={{fontSize:13,fontWeight:600,color:"#fff"}}>{firebaseOk?"Firebase Connected — Live Sync Active":"Local Storage Only"}</div>
-            <div style={{fontSize:11,color:T.muted}}>{firebaseOk?"All devices sync in real time. Free forever (1GB limit — your usage is tiny).":"Set up Firebase to share reports between users"}</div>
+            <div style={{fontSize:11,color:T.muted}}>{firebaseOk?"All devices sync in real time.":"Set up Firebase to share reports between users"}</div>
           </div>
         </div>
       </div>

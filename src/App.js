@@ -53,10 +53,9 @@ const SEED_CUSTOMERS = [
 ];
 
 const USERS = [
-  {id:"u1",username:"admin", password:"SQ@admin2024",   role:"admin",      name:"Admin-Faran"},
-  {id:"u2",username:"tech1", password:"SQ@tech1", role:"technician", name:"Mohsin"},
-  {id:"u3",username:"tech2", password:"SQ@tech2", role:"technician", name:"Mudasser"},
-  {id:"u4",username:"admin2", password:"SQ@admin2", role:"admin2", name:"Bashar"},
+  {id:"u1",username:"admin", password:"SQ@admin2024",   role:"admin",      name:"Admin User"},
+  {id:"u2",username:"tech1", password:"SQ@tech1#field", role:"technician", name:"Ahmed Al Mansoori"},
+  {id:"u3",username:"tech2", password:"SQ@tech2#field", role:"technician", name:"Khalid Al Rashidi"},
 ];
 
 const EMIRATES = ["Abu Dhabi","Dubai","Sharjah","Ajman","Umm Al Quwain","Ras Al Khaimah","Fujairah"];
@@ -399,35 +398,34 @@ const CustomerModal = ({initial,onSave,onClose}) => {
   };
   return(
     <div className="overlay">
-      <div className="modal">
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
+      <div className="modal" style={{padding:18}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
           <div style={{fontSize:16,fontWeight:800,color:"#fff"}}>{initial?"Edit Plant":"Add New Plant"}</div>
-          <button className="btn-g" style={{padding:"5px 8px"}} onClick={onClose}><Ic.X/></button>
+          <button style={{background:"transparent",color:T.muted,border:`1px solid ${T.border}`,borderRadius:7,padding:"5px 10px",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:T.font}} onClick={onClose}>✕</button>
         </div>
-        <div className="g2">
+        <div className="g2" style={{gap:10}}>
           {[{l:"Plant Name *",k:"name"},{l:"Location *",k:"location"},{l:"Capacity",k:"capacity"},{l:"Doc / Contract No.",k:"docNo"},{l:"Contact No.",k:"contactNo"},{l:"Operator Name",k:"operatorName"}].map(x=>(
-            <div key={x.k} className="fg"><label>{x.l}</label><input value={f[x.k]||""} onChange={e=>set(x.k,e.target.value)}/></div>
+            <div key={x.k} className="fg" style={{marginBottom:9}}><label>{x.l}</label><input value={f[x.k]||""} onChange={e=>set(x.k,e.target.value)}/></div>
           ))}
-          <div className="fg"><label>Emirate</label><select value={f.emirate} onChange={e=>set("emirate",e.target.value)}>{EMIRATES.map(e=><option key={e}>{e}</option>)}</select></div>
-          <div className="fg"><label>Duration</label><select value={f.duration} onChange={e=>set("duration",e.target.value)}>{["6 Months","1 year","2 year","3 year","Rental"].map(d=><option key={d}>{d}</option>)}</select></div>
-          <div className="fg"><label>AMC Start</label><input type="date" value={f.amcStart} onChange={e=>set("amcStart",e.target.value)}/></div>
-          <div className="fg"><label>AMC End</label><input type="date" value={f.amcEnd} onChange={e=>set("amcEnd",e.target.value)}/></div>
+          <div className="fg" style={{marginBottom:9}}><label>Emirate</label><select value={f.emirate} onChange={e=>set("emirate",e.target.value)}>{EMIRATES.map(e=><option key={e}>{e}</option>)}</select></div>
+          <div className="fg" style={{marginBottom:9}}><label>Duration</label><select value={f.duration} onChange={e=>set("duration",e.target.value)}>{["6 Months","1 year","2 year","3 year","Rental"].map(d=><option key={d}>{d}</option>)}</select></div>
+          <div className="fg" style={{marginBottom:9}}><label>AMC Start</label><input type="date" value={f.amcStart} onChange={e=>set("amcStart",e.target.value)}/></div>
+          <div className="fg" style={{marginBottom:9}}><label>AMC End</label><input type="date" value={f.amcEnd} onChange={e=>set("amcEnd",e.target.value)}/></div>
         </div>
-        <div style={{background:T.surface,borderRadius:10,padding:14,marginBottom:14,border:`1px solid ${T.border}`}}>
-          <div style={{fontSize:11,color:T.light,fontWeight:700,letterSpacing:1,marginBottom:10}}>📍 PLANT LOCATION</div>
-          <div className="fg"><label>Full Address</label><input value={f.address||""} onChange={e=>set("address",e.target.value)} placeholder="e.g. Al Khatem Area, Abu Dhabi, UAE"/></div>
-          <div className="g2" style={{marginBottom:10}}>
-            <div className="fg"><label>Latitude</label><input type="number" step="0.000001" value={f.lat||""} onChange={e=>set("lat",e.target.value)} placeholder="e.g. 24.192"/></div>
-            <div className="fg"><label>Longitude</label><input type="number" step="0.000001" value={f.lng||""} onChange={e=>set("lng",e.target.value)} placeholder="e.g. 55.763"/></div>
+        <div style={{background:T.surface,borderRadius:9,padding:12,marginBottom:12,border:`1px solid ${T.border}`}}>
+          <div style={{fontSize:11,color:T.light,fontWeight:700,letterSpacing:1,marginBottom:9}}>📍 PLANT LOCATION</div>
+          <div className="fg" style={{marginBottom:9}}><label>Full Address</label><input value={f.address||""} onChange={e=>set("address",e.target.value)} placeholder="e.g. Al Khatem Area, Abu Dhabi, UAE"/></div>
+          <div className="g2" style={{marginBottom:9}}>
+            <div className="fg" style={{marginBottom:0}}><label>Latitude</label><input type="number" step="0.000001" value={f.lat||""} onChange={e=>set("lat",e.target.value)} placeholder="e.g. 24.192"/></div>
+            <div className="fg" style={{marginBottom:0}}><label>Longitude</label><input type="number" step="0.000001" value={f.lng||""} onChange={e=>set("lng",e.target.value)} placeholder="e.g. 55.763"/></div>
           </div>
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-            <button className="btn-p" style={{fontSize:12,padding:"7px 13px"}} onClick={getGPS}><Ic.GPS/> Use My GPS Location</button>
-            <button className="btn-soft" style={{fontSize:12,padding:"7px 13px"}} onClick={()=>window.open(`https://maps.google.com?q=${encodeURIComponent(f.address||f.name)}`,"_blank")}><Ic.Map/> Find on Google Maps</button>
+            <button className="btn-p" style={{fontSize:12,padding:"7px 12px"}} onClick={getGPS}><Ic.GPS/> Use My GPS</button>
+            <button className="btn-soft" style={{fontSize:12,padding:"7px 12px"}} onClick={()=>window.open(`https://maps.google.com?q=${encodeURIComponent(f.address||f.name)}`,"_blank")}><Ic.Map/> Google Maps</button>
           </div>
-          <div style={{fontSize:11,color:T.muted,marginTop:8}}>💡 Visit the plant site and tap "Use My GPS Location" for best accuracy</div>
         </div>
-        <div style={{display:"flex",gap:10}}>
-          <button className="btn-p" style={{flex:1,justifyContent:"center"}} onClick={()=>{if(!f.name||!f.location)return alert("Name & Location required");onSave(f);}}><Ic.Save/> Save Plant</button>
+        <div style={{display:"flex",gap:9}}>
+          <button className="btn-p" style={{flex:1,justifyContent:"center"}} onClick={()=>{if(!f.name||!f.location)return alert("Name & Location required");onSave(f);}}><Ic.Save/> Save</button>
           <button className="btn-soft" onClick={onClose}>Cancel</button>
         </div>
       </div>
@@ -582,84 +580,199 @@ const Customers = ({customers,setCustomers,user}) => {
 };
 
 // ─── Route Planner ──────────────────────────────────────────────────────────
-const Route = ({customers,setCustomers,user}) => {
+const Route = ({customers,setCustomers,reports,user}) => {
   const [em,setEm]=useState("Abu Dhabi");
   const [editLoc,setEditLoc]=useState(null);
   const [tempLoc,setTempLoc]=useState({});
+  const [selected,setSelected]=useState(new Set());   // selected plant IDs
+  const [sortMode,setSortMode]=useState("auto");       // "auto" | "manual"
+  const [visited,setVisited]=useState(new Set());      // visited during this session
+
   const EC={"Abu Dhabi":{lat:24.2,lng:55.7},"Dubai":{lat:25.2,lng:55.27},"Sharjah":{lat:25.35,lng:55.41},"Ajman":{lat:25.4,lng:55.44},"Ras Al Khaimah":{lat:25.78,lng:55.94},"Fujairah":{lat:25.12,lng:56.34},"Umm Al Quwain":{lat:25.55,lng:55.55}};
-  const plants=customers.filter(c=>c.emirate===em&&c.lat&&c.lng);
-  const noGPS=customers.filter(c=>c.emirate===em&&(!c.lat||!c.lng));
-  const optimize=pts=>{if(!pts.length)return[];let cur=EC[em]||{lat:24.2,lng:55.7},rem=[...pts],route=[];while(rem.length){let ni=0,md=Infinity;rem.forEach((p,i)=>{const d=Math.hypot(p.lat-cur.lat,p.lng-cur.lng);if(d<md){md=d;ni=i;}});route.push(rem[ni]);cur=rem[ni];rem.splice(ni,1);}return route;};
-  const route=optimize(plants);
+
+  const allPlants = customers.filter(c=>c.emirate===em&&c.lat&&c.lng);
+  const noGPS    = customers.filter(c=>c.emirate===em&&(!c.lat||!c.lng));
+
+  // Check if a plant has a report today
+  const todayVisited = id => reports.some(r=>r.customerId===id&&r.date===todayStr());
+
+  // Optimize route via nearest-neighbor
+  const optimize=pts=>{
+    if(!pts.length) return [];
+    let cur=EC[em]||{lat:24.2,lng:55.7},rem=[...pts],route=[];
+    while(rem.length){
+      let ni=0,md=Infinity;
+      rem.forEach((p,i)=>{const d=Math.hypot(p.lat-cur.lat,p.lng-cur.lng);if(d<md){md=d;ni=i;}});
+      route.push(rem[ni]);cur=rem[ni];rem.splice(ni,1);
+    }
+    return route;
+  };
+
+  // Determine which plants to route
+  const routePlants = selected.size>0
+    ? allPlants.filter(p=>selected.has(p.id))
+    : allPlants;
+  const route = sortMode==="auto" ? optimize(routePlants) : routePlants;
+
+  const toggleSelect = id => setSelected(prev=>{const n=new Set(prev);n.has(id)?n.delete(id):n.add(id);return n;});
+  const selectAll    = () => setSelected(new Set(allPlants.map(p=>p.id)));
+  const clearAll     = () => setSelected(new Set());
+  const toggleVisited= id => setVisited(prev=>{const n=new Set(prev);n.has(id)?n.delete(id):n.add(id);return n;});
+
   const openEdit=p=>{setEditLoc(p);setTempLoc({lat:p.lat||"",lng:p.lng||"",address:p.address||""});};
   const getGPS=()=>{
     if(!navigator.geolocation){alert("GPS not available");return;}
-    navigator.geolocation.getCurrentPosition(pos=>{setTempLoc(t=>({...t,lat:pos.coords.latitude.toFixed(6),lng:pos.coords.longitude.toFixed(6)}));},()=>alert("Could not get GPS location"));
+    navigator.geolocation.getCurrentPosition(
+      pos=>{setTempLoc(t=>({...t,lat:pos.coords.latitude.toFixed(6),lng:pos.coords.longitude.toFixed(6)}));},
+      ()=>alert("Could not get GPS location")
+    );
   };
   const saveLocation=()=>{
     setCustomers(cs=>cs.map(c=>c.id===editLoc.id?{...c,lat:tempLoc.lat,lng:tempLoc.lng,address:tempLoc.address}:c));
     setEditLoc(null);
   };
+
+  const doneCount = route.filter(s=>visited.has(s.id)||todayVisited(s.id)).length;
+
   return(
     <div className="pg fade-up">
-      <div style={{marginBottom:14}}><div style={{fontSize:22,fontWeight:800,color:"#fff"}}>Route Planner</div><div style={{fontSize:12,color:T.muted}}>Nearest-neighbor optimization · minimize travel</div></div>
-      <div style={{display:"flex",gap:6,overflowX:"auto",marginBottom:14,paddingBottom:4}}>
-        {EMIRATES.map(e=><button key={e} onClick={()=>setEm(e)} className={em===e?"chip on":"chip"}>{e} ({customers.filter(c=>c.emirate===e).length})</button>)}
-      </div>
-      <div className="card" style={{marginBottom:14,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-        <div><div style={{fontWeight:700,color:"#fff",fontSize:15}}>{em}</div><div style={{fontSize:12,color:T.muted}}>{route.length} stops optimized</div></div>
-        {route.length>0&&<a href={`https://www.google.com/maps/dir/${route.map(p=>`${p.lat},${p.lng}`).join("/")}`} target="_blank" rel="noopener noreferrer" style={{background:`linear-gradient(135deg,${T.mid},${T.bright})`,color:"#fff",padding:"9px 15px",borderRadius:9,fontSize:12,fontWeight:700,textDecoration:"none",display:"flex",alignItems:"center",gap:6}}><Ic.Map/> Open Maps</a>}
+      {/* Header */}
+      <div style={{marginBottom:12}}>
+        <div style={{fontSize:22,fontWeight:800,color:"#fff"}}>Route Planner</div>
+        <div style={{fontSize:12,color:T.muted}}>Select plants · optimize route · track visits</div>
       </div>
 
+      {/* Emirate chips */}
+      <div style={{display:"flex",gap:6,overflowX:"auto",marginBottom:12,paddingBottom:4}}>
+        {EMIRATES.map(e=><button key={e} onClick={()=>{setEm(e);setSelected(new Set());setVisited(new Set());}} className={em===e?"chip on":"chip"}>{e} ({customers.filter(c=>c.emirate===e).length})</button>)}
+      </div>
+
+      {/* Controls bar */}
+      <div className="card" style={{marginBottom:12,padding:"12px 14px"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
+          <div>
+            <div style={{fontWeight:700,color:"#fff",fontSize:14}}>{em} · {route.length} stops</div>
+            <div style={{fontSize:11,color:T.muted}}>{doneCount}/{route.length} visited today</div>
+          </div>
+          <div style={{display:"flex",gap:7,flexWrap:"wrap",alignItems:"center"}}>
+            {/* Sort toggle */}
+            <div style={{display:"flex",background:T.bg,borderRadius:8,border:`1px solid ${T.border}`,overflow:"hidden"}}>
+              <button onClick={()=>setSortMode("auto")} style={{padding:"6px 11px",fontSize:11,background:sortMode==="auto"?`linear-gradient(135deg,${T.mid},${T.bright})`:"transparent",color:sortMode==="auto"?"#fff":T.muted,borderRadius:0,border:"none"}}>🔄 Auto</button>
+              <button onClick={()=>setSortMode("manual")} style={{padding:"6px 11px",fontSize:11,background:sortMode==="manual"?`linear-gradient(135deg,${T.mid},${T.bright})`:"transparent",color:sortMode==="manual"?"#fff":T.muted,borderRadius:0,border:"none"}}>📋 Listed</button>
+            </div>
+            {/* Select all / clear */}
+            <button className="btn-soft" style={{fontSize:11,padding:"6px 11px"}} onClick={selected.size===allPlants.length?clearAll:selectAll}>
+              {selected.size===allPlants.length?"☑ Clear All":"☐ Select All"}
+            </button>
+            {/* Open Maps */}
+            {route.length>0&&(
+              <a href={`https://www.google.com/maps/dir/${route.map(p=>`${p.lat},${p.lng}`).join("/")}`} target="_blank" rel="noopener noreferrer"
+                style={{background:`linear-gradient(135deg,${T.mid},${T.bright})`,color:"#fff",padding:"7px 13px",borderRadius:8,fontSize:12,fontWeight:700,textDecoration:"none",display:"flex",alignItems:"center",gap:5}}>
+                <Ic.Map/> Maps
+              </a>
+            )}
+          </div>
+        </div>
+        {selected.size>0&&<div style={{fontSize:11,color:T.accent,marginTop:8}}>✓ {selected.size} plant{selected.size>1?"s":""} selected — route shows selected only</div>}
+      </div>
+
+      {/* Progress bar */}
+      {route.length>0&&(
+        <div style={{background:T.bg,borderRadius:8,height:6,marginBottom:12,overflow:"hidden"}}>
+          <div style={{width:`${(doneCount/route.length)*100}%`,background:`linear-gradient(90deg,${T.accent2},${T.mid})`,height:"100%",borderRadius:8,transition:"width .4s"}}/>
+        </div>
+      )}
+
+      {/* Missing GPS warning */}
       {noGPS.length>0&&(
-        <div style={{background:T.warn+"14",border:`1px solid ${T.warn}33`,borderRadius:11,padding:12,marginBottom:14}}>
-          <div style={{fontSize:12,color:T.warn,fontWeight:700,marginBottom:8}}>⚠ {noGPS.length} plant{noGPS.length>1?"s":""} missing GPS — tap to add location</div>
+        <div style={{background:T.warn+"14",border:`1px solid ${T.warn}33`,borderRadius:10,padding:11,marginBottom:12}}>
+          <div style={{fontSize:12,color:T.warn,fontWeight:700,marginBottom:7}}>⚠ {noGPS.length} plant{noGPS.length>1?"s":""} missing GPS coordinates</div>
           {noGPS.map(p=>(
-            <div key={p.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"6px 0",borderBottom:`1px solid ${T.border}`}}>
+            <div key={p.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"5px 0",borderBottom:`1px solid ${T.border}`}}>
               <div><div style={{fontSize:13,color:"#fff",fontWeight:600}}>{p.name}</div><div style={{fontSize:11,color:T.muted}}>📍 {p.location}</div></div>
-              <button className="btn-soft" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>openEdit(p)}><Ic.GPS/> Add Location</button>
+              <button className="btn-soft" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>openEdit(p)}><Ic.GPS/> Add GPS</button>
             </div>
           ))}
         </div>
       )}
 
-      {route.length===0&&plants.length===0&&<div style={{textAlign:"center",padding:50,color:T.muted}}><div style={{fontSize:36,marginBottom:8}}>🗺</div>No GPS-tagged plants in {em}<div style={{fontSize:12,marginTop:5}}>Add coordinates via Plants → Edit, or tap "Add Location" above</div></div>}
-      {route.map((s,i)=>{const b=expiryBadge(s.amcEnd);const next=route[i+1];return(
-        <div key={s.id} className="rs">
-          <div className="rn">{i+1}</div>
-          <div style={{flex:1}}>
-            <div style={{fontWeight:700,color:"#fff",fontSize:14}}>{s.name}</div>
-            <div style={{fontSize:12,color:T.muted}}>📍 {s.location} · 💧 {s.capacity||"—"}</div>
-            {s.address&&<div style={{fontSize:11,color:T.muted}}>📌 {s.address}</div>}
-            <a href={`https://maps.google.com?q=${s.lat},${s.lng}`} target="_blank" rel="noopener noreferrer" style={{fontSize:11,color:T.accent,textDecoration:"none",display:"block",marginTop:2}}>🗺 {Number(s.lat).toFixed(4)}, {Number(s.lng).toFixed(4)}</a>
-            {next&&<div style={{fontSize:11,color:T.light,marginTop:3}}>↓ ~{(Math.hypot(next.lat-s.lat,next.lng-s.lng)*111).toFixed(1)} km to next</div>}
-          </div>
-          <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6}}>
-            <span className="tag" style={{background:b.color+"22",color:b.color,fontSize:10}}>{b.label}</span>
-            <button className="btn-soft" style={{fontSize:10,padding:"3px 8px"}} onClick={()=>openEdit(s)}><Ic.GPS/></button>
-          </div>
+      {route.length===0&&allPlants.length===0&&(
+        <div style={{textAlign:"center",padding:"36px 20px",color:T.muted}}>
+          <div style={{fontSize:36,marginBottom:8}}>🗺</div>
+          No GPS-tagged plants in {em}
+          <div style={{fontSize:12,marginTop:5}}>Add coordinates via Plants → Edit</div>
         </div>
-      );})}
+      )}
 
+      {/* Route list with checkboxes */}
+      {allPlants.map((s,i)=>{
+        const inRoute  = route.find(r=>r.id===s.id);
+        const routeIdx = route.indexOf(inRoute);
+        const isSelected = selected.has(s.id);
+        const isVisited  = visited.has(s.id)||todayVisited(s.id);
+        const next = inRoute && routeIdx<route.length-1 ? route[routeIdx+1] : null;
+        const b = expiryBadge(s.amcEnd);
+        return(
+          <div key={s.id} className="rs" style={{opacity:selected.size>0&&!isSelected?0.45:1,borderColor:isVisited?T.accent2+"55":isSelected?T.accent+"55":T.border,background:isVisited?T.accent2+"08":T.card}}>
+            {/* Checkbox */}
+            <div onClick={()=>toggleSelect(s.id)} style={{width:24,height:24,borderRadius:6,border:`2px solid ${isSelected?T.accent:T.border}`,background:isSelected?T.accent:"transparent",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0,transition:"all .18s"}}>
+              {isSelected&&<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
+            </div>
+            {/* Route number (only if in route) */}
+            {inRoute ? (
+              <div className="rn" style={{background:isVisited?`linear-gradient(135deg,${T.accent2},#059669)`:undefined}}>{isVisited?"✓":routeIdx+1}</div>
+            ) : (
+              <div style={{width:33,height:33,borderRadius:"50%",background:T.border+"44",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,color:T.muted,flexShrink:0}}>—</div>
+            )}
+            {/* Info */}
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontWeight:700,color:isVisited?T.accent2:"#fff",fontSize:14,display:"flex",alignItems:"center",gap:6}}>
+                {s.name}
+                {isVisited&&<span style={{fontSize:10,background:T.accent2+"22",color:T.accent2,padding:"1px 7px",borderRadius:10,fontWeight:700}}>✔ Done</span>}
+                {todayVisited(s.id)&&!visited.has(s.id)&&<span style={{fontSize:10,background:T.accent2+"22",color:T.accent2,padding:"1px 7px",borderRadius:10,fontWeight:700}}>✔ Report Submitted</span>}
+              </div>
+              <div style={{fontSize:12,color:T.muted}}>📍 {s.location} · 💧 {s.capacity||"—"}</div>
+              {s.address&&<div style={{fontSize:11,color:T.muted}}>📌 {s.address}</div>}
+              <a href={`https://maps.google.com?q=${s.lat},${s.lng}`} target="_blank" rel="noopener noreferrer" style={{fontSize:11,color:T.accent,textDecoration:"none",display:"block",marginTop:2}}>
+                🗺 {Number(s.lat).toFixed(4)}, {Number(s.lng).toFixed(4)}
+              </a>
+              {next&&<div style={{fontSize:11,color:T.light,marginTop:2}}>↓ ~{(Math.hypot(next.lat-s.lat,next.lng-s.lng)*111).toFixed(1)} km to next</div>}
+            </div>
+            {/* Right side actions */}
+            <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5,flexShrink:0}}>
+              <span className="tag" style={{background:b.color+"22",color:b.color,fontSize:9}}>{b.label}</span>
+              {/* Visited toggle button */}
+              <button onClick={()=>toggleVisited(s.id)}
+                style={{fontSize:10,padding:"3px 9px",borderRadius:6,border:`1px solid ${isVisited?T.accent2:T.border}`,background:isVisited?T.accent2+"22":"transparent",color:isVisited?T.accent2:T.muted,cursor:"pointer",fontFamily:T.font,fontWeight:600,whiteSpace:"nowrap"}}>
+                {isVisited?"✔ Visited":"Mark Done"}
+              </button>
+              <button className="btn-soft" style={{fontSize:10,padding:"3px 8px"}} onClick={()=>openEdit(s)}>📍 Edit</button>
+            </div>
+          </div>
+        );
+      })}
+
+      {/* Edit location modal — compact, no empty space */}
       {editLoc&&(
         <div className="overlay">
-          <div className="modal" style={{maxWidth:420}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-              <div style={{fontSize:15,fontWeight:800,color:"#fff"}}>Edit Location</div>
-              <button className="btn-g" style={{padding:"5px 8px"}} onClick={()=>setEditLoc(null)}><Ic.X/></button>
+          <div className="modal" style={{maxWidth:400,padding:20}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+              <div>
+                <div style={{fontSize:15,fontWeight:800,color:"#fff"}}>Edit Location</div>
+                <div style={{fontSize:12,color:T.muted}}>{editLoc.name}</div>
+              </div>
+              <button className="btn-g" style={{padding:"6px 8px",fontSize:16,lineHeight:1}} onClick={()=>setEditLoc(null)}>✕</button>
             </div>
-            <div style={{fontSize:13,color:T.muted,marginBottom:14}}>Plant: <strong style={{color:"#fff"}}>{editLoc.name}</strong></div>
             <div className="fg"><label>Full Address</label><input value={tempLoc.address||""} onChange={e=>setTempLoc(t=>({...t,address:e.target.value}))} placeholder="e.g. Al Khatem, Abu Dhabi"/></div>
             <div className="g2">
               <div className="fg"><label>Latitude</label><input type="number" step="0.000001" value={tempLoc.lat||""} onChange={e=>setTempLoc(t=>({...t,lat:e.target.value}))} placeholder="24.192"/></div>
               <div className="fg"><label>Longitude</label><input type="number" step="0.000001" value={tempLoc.lng||""} onChange={e=>setTempLoc(t=>({...t,lng:e.target.value}))} placeholder="55.763"/></div>
             </div>
             <div style={{display:"flex",flexDirection:"column",gap:8}}>
-              <button className="btn-p" style={{justifyContent:"center"}} onClick={getGPS}><Ic.GPS/> Use My Current GPS Location</button>
-              <button className="btn-soft" style={{justifyContent:"center"}} onClick={()=>window.open(`https://maps.google.com?q=${encodeURIComponent(tempLoc.address||editLoc.name)}`,"_blank")}><Ic.Map/> Search on Google Maps</button>
+              <button className="btn-p" style={{justifyContent:"center"}} onClick={getGPS}><Ic.GPS/> Use My Current GPS</button>
+              <button className="btn-soft" style={{justifyContent:"center"}} onClick={()=>window.open(`https://maps.google.com?q=${encodeURIComponent(tempLoc.address||editLoc.name)}`,"_blank")}><Ic.Map/> Search Google Maps</button>
               <button className="btn-s" style={{justifyContent:"center"}} onClick={saveLocation}><Ic.Save/> Save Location</button>
             </div>
-            <div style={{fontSize:11,color:T.muted,marginTop:10}}>💡 Best: visit the plant and tap "Use My Current GPS Location"</div>
           </div>
         </div>
       )}
@@ -805,7 +918,7 @@ const Reports = ({customers,reports,setReports,user}) => {
           <div className="modal" style={{maxWidth:700}}>
             <div style={{background:`linear-gradient(135deg,${T.navy},${T.mid})`,margin:"-24px -24px 20px",padding:"18px 24px",borderRadius:"18px 18px 0 0",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div><div style={{fontSize:16,fontWeight:800,color:"#fff"}}>{view.customerName}</div><div style={{fontSize:12,color:"rgba(255,255,255,0.55)"}}>📅 {view.date} · 👤 {view.submittedBy}</div></div>
-              <button onClick={()=>setView(null)} style={{background:"rgba(255,255,255,0.14)",color:"#fff",border:"none",borderRadius:8,padding:"7px 8px",cursor:"pointer",display:"flex"}}><Ic.X/></button>
+              <button onClick={()=>setView(null)} style={{background:"rgba(255,255,255,0.14)",color:"#fff",border:"none",borderRadius:8,padding:"7px 12px",cursor:"pointer",display:"flex",alignItems:"center",gap:5,fontFamily:T.font,fontWeight:700,fontSize:13}}>✕ Close</button>
             </div>
             {/* Action buttons */}
             <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>
@@ -867,7 +980,7 @@ const Settings = ({user,onLogout,customers,reports,firebaseOk}) => {
           <span style={{width:10,height:10,borderRadius:"50%",background:firebaseOk?T.accent2:T.warn,boxShadow:firebaseOk?`0 0 8px ${T.accent2}`:undefined,display:"inline-block",flexShrink:0}}/>
           <div>
             <div style={{fontSize:13,fontWeight:600,color:"#fff"}}>{firebaseOk?"Firebase Connected — Live Sync Active":"Local Storage Only"}</div>
-            <div style={{fontSize:11,color:T.muted}}>{firebaseOk?"All devices sync in real time.":"Set up Firebase to share reports between users"}</div>
+            <div style={{fontSize:11,color:T.muted}}>{firebaseOk?"All devices sync in real time. Free forever (1GB limit — your usage is tiny).":"Set up Firebase to share reports between users"}</div>
           </div>
         </div>
       </div>
@@ -1010,7 +1123,7 @@ export default function App() {
         <main style={{flex:1,overflowY:"auto",minWidth:0}}>
           {tab==="home"      &&<Dashboard {...pp} onTab={setTab}/>}
           {tab==="customers" &&<Customers {...pp} setCustomers={setCustomers}/>}
-          {tab==="route"     &&<Route customers={customers} setCustomers={setCustomers} user={user}/>}
+          {tab==="route"     &&<Route customers={customers} setCustomers={setCustomers} user={user} reports={reports}/>}
           {tab==="reports"   &&<Reports  {...pp} setReports={setReports}/>}
           {tab==="settings"  &&<Settings {...pp} onLogout={logout}/>}
         </main>
